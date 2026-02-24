@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Available Sitters - SitHappens</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            padding: 40px;
+            margin: 0;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .rating-link {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .rating-link:hover {
+            text-decoration: underline;
+        }
+
+        button {
+            padding: 8px 12px;
+            background-color: #27ae60;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #219150;
+        }
+
+        .back-link {
+            margin-top: 20px;
+            display: inline-block;
+            text-decoration: none;
+            color: #2c3e50;
+        }
+
+        .no-sitters {
+            font-style: italic;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>🐶 Available Sitters</h1>
+        <p>Find trusted sitters for your pets</p>
+    </header>
+
+    <div th:if="${#lists.isEmpty(sitters)}" class="no-sitters">
+        No sitters available yet.
+    </div>
+
+    <div th:each="sitter : ${sitters}" class="card">
+
+        <p>
+            <strong>Name:</strong>
+            <span th:text="${sitter.firstName}"></span>
+            <span th:text="${sitter.lastName}"></span>
+        </p>
+
+        <p>
+            <strong>Email:</strong>
+            <span th:text="${sitter.email}"></span>
+        </p>
+
+        <p>
+            <a th:href="@{/sitter-rating/{id}(id=${sitter.id})}" class="rating-link">
+                View Rating
+            </a>
+        </p>
+
+        <form th:action="@{/book-sitter/{id}(id=${sitter.id})}" method="post">
+            <button type="submit">Book This Sitter</button>
+        </form>
+
+    </div>
+
+    <a th:href="@{/}" class="back-link">⬅ Back to Home</a>
+
+</div>
+
+</body>
+</html>
