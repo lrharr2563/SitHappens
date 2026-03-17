@@ -2,7 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Available Sitters - SitHappens</title>
+
     <style>
+
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f6f9;
@@ -69,8 +71,28 @@
             font-style: italic;
             color: #7f8c8d;
         }
+
+        /* ---------- NAVIGATION BAR ---------- */
+
+        .navbar {
+            margin-top: 15px;
+        }
+
+        .navbar a {
+            margin-right: 20px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
     </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -78,6 +100,15 @@
     <header>
         <h1>🐶 Available Sitters</h1>
         <p>Find trusted sitters for your pets</p>
+
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <a th:href="@{/}">Home</a>
+            <a th:href="@{/sitters}">Sitters</a>
+            <a th:href="@{/bookings}">Bookings</a>
+            <a th:href="@{/admin}">Admin</a>
+        </nav>
+
     </header>
 
     <div th:if="${#lists.isEmpty(sitters)}" class="no-sitters">
@@ -108,8 +139,6 @@
         </form>
 
     </div>
-
-    <a th:href="@{/}" class="back-link">⬅ Back to Home</a>
 
 </div>
 

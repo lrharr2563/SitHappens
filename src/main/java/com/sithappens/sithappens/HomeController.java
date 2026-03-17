@@ -195,7 +195,7 @@ public class HomeController {
     }
 
     // 📅 Add Availability (Test)
-    @GetMapping("/add-availability")
+        @GetMapping("/add-availability")
     public String addAvailability() {
 
         User sitter = userRepository.findById(2L).orElse(null);
@@ -212,4 +212,21 @@ public class HomeController {
 
         return "redirect:/";
     }
+
+    // 📅 Bookings Page
+    @GetMapping("/bookings")
+    public String getBookings(Model model) {
+        model.addAttribute("bookings", bookingRepository.findAll());
+        return "bookings";
+    }
+
+    // ⚙ Admin Page
+    @GetMapping("/admin")
+    public String admin() {
+        return "admin";
+    }
+    
+
 }
+
+
