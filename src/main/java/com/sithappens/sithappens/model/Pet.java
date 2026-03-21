@@ -24,6 +24,8 @@ public class Pet {
 
     private Integer age;
 
+    private String notes;
+
     // Many pets belong to one user
     @ManyToOne
     @JoinColumn(name = "owner_id")
@@ -70,6 +72,14 @@ public class Pet {
     public User getOwner() {
         return owner;
     }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+}
 
     public void setOwner(User owner) {
         this.owner = owner;

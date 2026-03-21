@@ -4,7 +4,13 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
@@ -30,6 +36,8 @@ public class User {
     private String role;
 
     private String phone;
+
+    private boolean active = true;
 
     // 🔥 NEW: One user can have many pets
     @OneToMany(mappedBy = "owner")
@@ -109,6 +117,14 @@ public class User {
 
     public void setPets(List<Pet> pets) {
         this.pets = pets;
+    }
+
+    public boolean isActive() {
+    return active;
+    }
+
+    public void setActive(boolean active) {
+    this.active = active;
     }
 }
 

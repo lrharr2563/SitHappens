@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Login - SitHappens</title>
+    <title>Register - SitHappens</title>
 
     <style>
         body {
@@ -18,7 +18,7 @@
             border-radius: 8px;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 8px;
             margin-top: 8px;
@@ -39,9 +39,15 @@
 
 <div class="container">
 
-    <h2>Login</h2>
+    <h2>Register</h2>
 
-    <form action="/login" method="post">
+    <form action="/register" method="post">
+
+        <label>First Name:</label>
+        <input type="text" name="firstName" required>
+
+        <label>Last Name:</label>
+        <input type="text" name="lastName" required>
 
         <label>Email:</label>
         <input type="text" name="email" required>
@@ -49,7 +55,13 @@
         <label>Password:</label>
         <input type="password" name="password" required>
 
-        <button type="submit">Login</button>
+        <label>Role:</label>
+        <select name="role">
+            <option value="OWNER">Owner</option>
+            <option value="SITTER">Sitter</option>
+        </select>
+
+        <button type="submit">Register</button>
 
     </form>
 

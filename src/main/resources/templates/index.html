@@ -74,9 +74,20 @@
 <body>
 
 <!-- NAVBAR -->
-<nav>
-    <a href="/">Home</a>
-    <a href="/sitters">Sitters</a>
+<nav style="display: flex; justify-content: space-between; align-items: center;">
+
+    <!-- LEFT SIDE -->
+    <div>
+        <a href="/">Home</a>
+        <a href="/sitters">Sitters</a>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div>
+        <a href="/login">Login</a>
+        <a href="/register" style="margin-left: 15px;">Register</a>
+    </div>
+
 </nav>
 
 <div class="container">
@@ -95,8 +106,8 @@
 
     <!-- HERO IMAGE -->
     <div class="section">
-        <img src="https://images.unsplash.com/photo-1518717758536-85ae29035b6d"
-             style="width:100%; max-height:300px; object-fit:cover;">
+        <img src="/images/willowandbret.jpg"
+                style="width:100%; height:300px; object-fit:cover; object-position: center 70%; border-radius:8px;">
     </div>
 
     <!-- SERVICES -->

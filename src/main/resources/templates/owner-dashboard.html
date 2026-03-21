@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Owner Dashboard</title>
+</head>
+<body>
+
+<h1>Owner Dashboard</h1>
+
+<h2 th:if="${user != null}">
+    Welcome, <span th:text="${user.firstName}"></span>!
+</h2>
+
+<hr>
+
+<!-- BOOKINGS SECTION -->
+<h3>Your Bookings</h3>
+
+<div th:if="${#lists.isEmpty(bookings)}">
+    <p>No bookings yet.</p>
+</div>
+
+<div th:each="booking : ${bookings}">
+    <p>
+        Sitter:
+        <span th:text="${booking.sitter.firstName}"></span>
+        <span th:text="${booking.sitter.lastName}"></span>
+        <br>
+        Status: <span th:text="${booking.status}"></span>
+    </p>
+    <hr>
+</div>
+
+<!-- PET SECTION -->
+<h3>Your Pets</h3>
+
+<div th:if="${#lists.isEmpty(pets)}">
+    <p>No pets added yet.</p>
+</div>
+
+<div th:each="pet : ${pets}">
+    <p>
+        Name: <span th:text="${pet.name}"></span><br>
+        Type: <span th:text="${pet.type}"></span>
+    </p>
+    <hr>
+</div>
+
+<!-- ACTION BUTTONS -->
+<h3>Actions</h3>
+
+<a href="/sitters">
+    <button>Find a Sitter</button>
+</a>
+
+<br><br>
+
+<a href="/add-pet">
+    <button>Add a Pet</button>
+</a>
+
+<br><br>
+
+<!-- SAFE DELETE ACCOUNT BUTTON -->
+<div th:if="${user != null}">
+    <a th:href="@{'/deactivate-user/' + ${user.id}}">
+        <button style="background-color:red; color:white;">
+            Delete Account
+        </button>
+    </a>
+</div>
+
+</body>
+</html>

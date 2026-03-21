@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Pet</title>
+</head>
+<body>
+
+<h1>Add Your Pet 🐾</h1>
+
+<form action="/save-pet" method="post">
+
+    <label>Pet Name:</label><br>
+    <input type="text" name="name" required>
+    <br><br>
+
+    <label>Type (Dog, Cat, etc.):</label><br>
+    <input type="text" name="type" required>
+    <br><br>
+
+    <label>Age:</label><br>
+    <input type="number" name="age">
+    <br><br>
+
+    <label>Breed:</label><br>
+    <input type="text" name="breed">
+    <br><br>
+
+    <label>About Your Pet:</label><br>
+    <textarea name="notes" rows="4" cols="40"
+        placeholder="Likes, dislikes, food, toys, behavior..."></textarea>
+    <br><br>
+
+    <!-- PHOTO (placeholder for now) -->
+    <label>Upload Photo (coming soon):</label><br>
+    <input type="file" disabled>
+    <br><br>
+
+    <button type="submit">Save Pet</button>
+
+</form>
+
+<br>
+
+<a href="/dashboard">Back to Dashboard</a>
+
+</body>
+</html>

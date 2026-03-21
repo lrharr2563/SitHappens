@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sitter Dashboard</title>
+</head>
+<body>
+
+<h1>Sitter Dashboard</h1>
+
+<p>Welcome! You can:</p>
+
+<ul>
+    <li>View booking requests</li>
+    <li>Accept or decline jobs</li>
+    <li>Update availability</li>
+</ul>
+
+<a href="/bookings">View Bookings</a>
+
+<h3>Booking Requests</h3>
+
+<div th:if="${#lists.isEmpty(bookings)}">
+    <p>No requests yet.</p>
+</div>
+
+<div th:each="booking : ${bookings}">
+    <p>
+        Owner:
+            <span th:text="${booking.owner.firstName}"></span>
+            <span th:text="${booking.owner.lastName}"></span>
+        Status: <span th:text="${booking.status}"></span>
+    </p>
+</div>
+
+</body>
+</html>

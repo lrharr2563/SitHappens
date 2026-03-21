@@ -72,8 +72,29 @@
 
 </header>
 
-<div class="card">
+<div th:if="${#lists.isEmpty(bookings)}" class="card">
     <p>No bookings yet.</p>
+</div>
+
+<div th:each="booking : ${bookings}" class="card">
+
+    <p>
+    <strong>Owner:</strong>
+    <span th:text="${booking.owner.firstName}"></span>
+    <span th:text="${booking.owner.lastName}"></span>
+</p>
+
+<p>
+    <strong>Sitter:</strong>
+    <span th:text="${booking.sitter.firstName}"></span>
+    <span th:text="${booking.sitter.lastName}"></span>
+</p>
+
+    <p>
+        <strong>Status:</strong>
+        <span th:text="${booking.status}"></span>
+    </p>
+
 </div>
 
 </div>
