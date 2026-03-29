@@ -48,9 +48,7 @@ public class HomeController {
         return "index";
     }
 
-    // =========================
-    // 🔐 LOGIN / REGISTER
-    // =========================
+    // Login and Register
 
     @GetMapping("/login")
     public String loginPage() {
@@ -103,9 +101,7 @@ public class HomeController {
         return "login";
     }
 
-    // =========================
-    // 🧠 DASHBOARD
-    // =========================
+    // Dashboard
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
@@ -151,9 +147,7 @@ public class HomeController {
         }
     }
 
-    // =========================
-    // 🐶 PET FEATURE
-    // =========================
+    // Pet feature
 
     @GetMapping("/add-pet")
     public String showAddPetPage() {
@@ -187,9 +181,7 @@ public String savePet(@RequestParam String name,
     return "redirect:/dashboard";
 }
 
-    // =========================
-    // 🔹 EXISTING FEATURES
-    // =========================
+    // existing features
 
     @GetMapping("/sitters")
     public String viewSitters(Model model) {
@@ -241,9 +233,7 @@ public String savePet(@RequestParam String name,
         return "admin";
     }
 
-    // =========================
-    // ❌ DEACTIVATE USER
-    // =========================
+    // deactivate user
 
     @GetMapping("/deactivate-user/{id}")
     public String deactivateUser(@PathVariable Long id, HttpSession session) {
