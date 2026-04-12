@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,6 +42,9 @@ public class HomeController {
     @Autowired
     private PetRepository petRepository;
 
+    // 🔥 PASSWORD ENCODER
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
     // 🏠 Homepage
     @GetMapping("/")
     public String home(Model model) {
@@ -71,7 +75,10 @@ public class HomeController {
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
-        user.setPasswordHash(password);
+
+        // 🔥 HASH PASSWORD
+        user.setPasswordHash(encoder.encode(password));
+
         user.setRole(role);
 
         userRepository.save(user);
@@ -89,7 +96,7 @@ public class HomeController {
 
         for (User user : users) {
             if (user.getEmail().equals(email) &&
-                user.getPasswordHash().equals(password) &&
+                encoder.matches(password, user.getPasswordHash()) &&
                 user.isActive()) {
 
                 session.setAttribute("loggedInUser", user);
@@ -136,7 +143,7 @@ public class HomeController {
 
         model.addAttribute("bookings", userBookings);
 
-        // 🔥 PETS (NEW)
+        // 🔥 PETS
         List<Pet> pets = petRepository.findAll();
         model.addAttribute("pets", pets);
 
@@ -155,31 +162,31 @@ public class HomeController {
     }
 
     @PostMapping("/save-pet")
-public String savePet(@RequestParam String name,
-                     @RequestParam String type,
-                     @RequestParam(required = false) Integer age,
-                     @RequestParam(required = false) String breed,
-                     @RequestParam(required = false) String notes,
-                     HttpSession session) {
+    public String savePet(@RequestParam String name,
+                         @RequestParam String type,
+                         @RequestParam(required = false) Integer age,
+                         @RequestParam(required = false) String breed,
+                         @RequestParam(required = false) String notes,
+                         HttpSession session) {
 
-    User user = (User) session.getAttribute("loggedInUser");
+        User user = (User) session.getAttribute("loggedInUser");
 
-    if (user == null) {
-        return "redirect:/login";
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        Pet pet = new Pet();
+        pet.setName(name);
+        pet.setType(type);
+        pet.setAge(age);
+        pet.setBreed(breed);
+        pet.setNotes(notes);
+        pet.setOwner(user);
+
+        petRepository.save(pet);
+
+        return "redirect:/dashboard";
     }
-
-    Pet pet = new Pet();
-    pet.setName(name);
-    pet.setType(type);
-    pet.setAge(age);
-    pet.setBreed(breed);
-    pet.setNotes(notes);
-    pet.setOwner(user);
-
-    petRepository.save(pet);
-
-    return "redirect:/dashboard";
-}
 
     // existing features
 
