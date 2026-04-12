@@ -2,72 +2,141 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Owner Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+
+        .review-btn, .add-pet-btn, .find-sitter-btn {
+            display: inline-block;
+            padding: 8px 12px;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .review-btn {
+            background-color: #8e44ad;
+        }
+
+        .review-btn:hover {
+            background-color: #6c3483;
+        }
+
+        .add-pet-btn {
+            background-color: #27ae60;
+        }
+
+        .add-pet-btn:hover {
+            background-color: #219150;
+        }
+
+        .find-sitter-btn {
+            background-color: #2980b9;
+        }
+
+        .find-sitter-btn:hover {
+            background-color: #21618c;
+        }
+
+        .booking-info p,
+        .pet-info p {
+            margin: 8px 0;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Owner Dashboard</h1>
+<div class="container">
 
-<h2 th:if="${user != null}">
-    Welcome, <span th:text="${user.firstName}"></span>!
-</h2>
+    <h1>Owner Dashboard</h1>
 
-<hr>
+    <a href="/add-pet" class="add-pet-btn">Add Pet</a>
+    <a href="/sitters" class="find-sitter-btn">Find a Sitter</a>
 
-<!-- BOOKINGS SECTION -->
-<h3>Your Bookings</h3>
+    <h3>Your Pets</h3>
 
-<div th:if="${#lists.isEmpty(bookings)}">
-    <p>No bookings yet.</p>
-</div>
+    <div th:if="${#lists.isEmpty(pets)}" class="card">
+        <p>No pets added yet.</p>
+    </div>
 
-<div th:each="booking : ${bookings}">
-    <p>
-        Sitter:
-        <span th:text="${booking.sitter.firstName}"></span>
-        <span th:text="${booking.sitter.lastName}"></span>
-        <br>
-        Status: <span th:text="${booking.status}"></span>
-    </p>
-    <hr>
-</div>
+    <div th:each="pet : ${pets}" class="card">
+        <div class="pet-info">
+            <p><strong>Name:</strong> <span th:text="${pet.name}"></span></p>
+            <p><strong>Type:</strong> <span th:text="${pet.type}"></span></p>
+            <p><strong>Breed:</strong> <span th:text="${pet.breed}"></span></p>
+            <p><strong>Age:</strong> <span th:text="${pet.age}"></span></p>
+            <p><strong>Notes:</strong> <span th:text="${pet.notes}"></span></p>
+        </div>
+    </div>
 
-<!-- PET SECTION -->
-<h3>Your Pets</h3>
+    <h3>Your Bookings</h3>
 
-<div th:if="${#lists.isEmpty(pets)}">
-    <p>No pets added yet.</p>
-</div>
+    <div th:if="${#lists.isEmpty(bookings)}" class="card">
+        <p>No bookings yet.</p>
+    </div>
 
-<div th:each="pet : ${pets}">
-    <p>
-        Name: <span th:text="${pet.name}"></span><br>
-        Type: <span th:text="${pet.type}"></span>
-    </p>
-    <hr>
-</div>
+    <div th:each="booking : ${bookings}" class="card">
+        <div class="booking-info">
+            <p>
+                <strong>Sitter:</strong>
+                <span th:text="${booking.sitter.firstName}"></span>
+                <span th:text="${booking.sitter.lastName}"></span>
+            </p>
 
-<!-- ACTION BUTTONS -->
-<h3>Actions</h3>
+            <p><strong>Status:</strong> <span th:text="${booking.status}"></span></p>
 
-<a href="/sitters">
-    <button>Find a Sitter</button>
-</a>
+            <p th:if="${booking.pet != null}">
+                <strong>Pet Name:</strong>
+                <span th:text="${booking.pet.name}"></span>
+            </p>
 
-<br><br>
+            <p><strong>Service Type:</strong> <span th:text="${booking.serviceType}"></span></p>
+            <p><strong>Start Date:</strong> <span th:text="${booking.startDate}"></span></p>
+            <p><strong>End Date:</strong> <span th:text="${booking.endDate}"></span></p>
+            <p><strong>Your Request:</strong> <span th:text="${booking.requestMessage}"></span></p>
 
-<a href="/add-pet">
-    <button>Add a Pet</button>
-</a>
+            <p th:if="${booking.status == 'DECLINED'}">
+                <strong>Decline Reason:</strong>
+                <span th:text="${booking.declineMessage}"></span>
+            </p>
+        </div>
 
-<br><br>
+    <div th:if="${booking.status == 'COMPLETED' and !#lists.contains(reviewedBookingIds, booking.id)}">
+        <a th:href="@{/leave-review/{bookingId}/{revieweeId}(bookingId=${booking.id},revieweeId=${booking.sitter.id})}"
+        class="review-btn">
+            Leave Review for Sitter
+        </a>
+        </div>
 
-<!-- SAFE DELETE ACCOUNT BUTTON -->
-<div th:if="${user != null}">
-    <a th:href="@{'/deactivate-user/' + ${user.id}}">
-        <button style="background-color:red; color:white;">
-            Delete Account
-        </button>
-    </a>
+        <p th:if="${booking.status == 'COMPLETED' and #lists.contains(reviewedBookingIds, booking.id)}">
+            Review already submitted.
+        </p>
+    </div>
+
 </div>
 
 </body>

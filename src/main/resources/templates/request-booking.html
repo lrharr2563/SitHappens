@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Request Booking - SitHappens</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #27ae60;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #219150;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Request Service</h2>
+
+    <p>
+        Requesting service from:
+        <strong>
+            <span th:text="${sitter.firstName}"></span>
+            <span th:text="${sitter.lastName}"></span>
+        </strong>
+    </p>
+
+    <form action="/request-booking" method="post">
+
+        <input type="hidden" name="sitterId" th:value="${sitter.id}" />
+
+        <label>Select Pet:</label>
+        <select name="petId" required>
+            <option value="">-- Select a Pet --</option>
+            <option th:each="pet : ${pets}"
+                    th:value="${pet.id}"
+                    th:text="${pet.name}">
+            </option>
+        </select>
+
+        <label>Service Type:</label>
+        <select name="serviceType" required>
+            <option value="">-- Select a Service --</option>
+            <option value="Overnight Pet Sitting">Overnight Pet Sitting</option>
+            <option value="Dog Walking">Dog Walking</option>
+            <option value="Drop-In Visit">Drop-In Visit</option>
+        </select>
+
+        <label>Start Date:</label>
+        <input type="date" name="startDate" required />
+
+        <label>End Date:</label>
+        <input type="date" name="endDate" required />
+
+        <label>Request Details:</label>
+        <textarea name="requestMessage" rows="5"
+                  placeholder="Hi, I am looking for care for my pet during these dates."
+                  required></textarea>
+
+        <button type="submit">Send Request</button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

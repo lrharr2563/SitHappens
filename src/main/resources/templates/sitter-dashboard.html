@@ -1,35 +1,224 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Sitter Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+
+        .booking-info p {
+            margin: 8px 0;
+        }
+
+        .actions {
+            margin-top: 15px;
+        }
+
+        .accept-btn, .complete-btn, .review-btn {
+            display: inline-block;
+            padding: 8px 12px;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        .accept-btn {
+            background-color: #27ae60;
+        }
+
+        .accept-btn:hover {
+            background-color: #219150;
+        }
+
+        .complete-btn {
+            background-color: #2980b9;
+        }
+
+        .complete-btn:hover {
+            background-color: #21618c;
+        }
+
+        .review-btn {
+            background-color: #8e44ad;
+        }
+
+        .review-btn:hover {
+            background-color: #6c3483;
+        }
+
+        .decline-form {
+            margin-top: 12px;
+        }
+
+        .decline-form input {
+            padding: 8px;
+            width: 60%;
+            margin-right: 8px;
+        }
+
+        .decline-form button {
+            padding: 8px 12px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .decline-form button:hover {
+            background-color: #c0392b;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Sitter Dashboard</h1>
+<div class="container">
 
-<p>Welcome! You can:</p>
+    <h1>Sitter Dashboard</h1>
 
-<ul>
-    <li>View booking requests</li>
-    <li>Accept or decline jobs</li>
-    <li>Update availability</li>
-</ul>
+    <p>Welcome! You can:</p>
+    <ul>
+        <li>View booking requests</li>
+        <li>Accept or decline jobs</li>
+        <li>Update availability</li>
+    </ul>
 
-<a href="/bookings">View Bookings</a>
+    <a href="/bookings" class="nav-link">View Bookings</a>
 
-<h3>Booking Requests</h3>
+    <h3>Booking Requests</h3>
 
-<div th:if="${#lists.isEmpty(bookings)}">
-    <p>No requests yet.</p>
-</div>
+    <div th:if="${#lists.isEmpty(bookings)}" class="card">
+        <p>No requests yet.</p>
+    </div>
 
-<div th:each="booking : ${bookings}">
-    <p>
-        Owner:
-            <span th:text="${booking.owner.firstName}"></span>
-            <span th:text="${booking.owner.lastName}"></span>
-        Status: <span th:text="${booking.status}"></span>
-    </p>
+    <div th:each="booking : ${bookings}" class="card">
+        <div class="booking-info">
+            <p>
+                <strong>Owner:</strong>
+                <span th:text="${booking.owner.firstName}"></span>
+                <span th:text="${booking.owner.lastName}"></span>
+            </p>
+
+            <p>
+                <strong>Status:</strong>
+                <span class="status" th:text="${booking.status}"></span>
+            </p>
+
+            <p th:if="${booking.pet != null}">
+                <strong>Pet Name:</strong>
+                <span th:text="${booking.pet.name}"></span>
+            </p>
+
+            <p th:if="${booking.pet != null}">
+                <strong>Pet Type:</strong>
+                <span th:text="${booking.pet.type}"></span>
+            </p>
+
+            <p th:if="${booking.pet != null}">
+                <strong>Breed:</strong>
+                <span th:text="${booking.pet.breed}"></span>
+            </p>
+
+            <p th:if="${booking.pet != null}">
+                <strong>Age:</strong>
+                <span th:text="${booking.pet.age}"></span>
+            </p>
+
+            <p th:if="${booking.pet != null}">
+                <strong>Notes:</strong>
+                <span th:text="${booking.pet.notes}"></span>
+            </p>
+
+            <p>
+                <strong>Service Type:</strong>
+                <span th:text="${booking.serviceType}"></span>
+            </p>
+
+            <p>
+                <strong>Start Date:</strong>
+                <span th:text="${booking.startDate}"></span>
+            </p>
+
+            <p>
+                <strong>End Date:</strong>
+                <span th:text="${booking.endDate}"></span>
+            </p>
+
+            <p>
+                <strong>Owner Request:</strong>
+                <span th:text="${booking.requestMessage}"></span>
+            </p>
+
+            <p th:if="${booking.status == 'DECLINED'}">
+                <strong>Decline Reason:</strong>
+                <span th:text="${booking.declineMessage}"></span>
+            </p>
+        </div>
+
+        <div class="actions" th:if="${booking.status == 'REQUESTED'}">
+            <a th:href="@{/accept-booking/{id}(id=${booking.id})}" class="accept-btn">
+                Accept
+            </a>
+
+            <form action="/decline-booking" method="post" class="decline-form">
+                <input type="hidden" name="bookingId" th:value="${booking.id}" />
+                <input type="text" name="message" placeholder="Reason for declining" required />
+                <button type="submit">Decline</button>
+            </form>
+        </div>
+
+        <div class="actions" th:if="${booking.status == 'CONFIRMED'}">
+            <a th:href="@{/complete-booking/{id}(id=${booking.id})}" class="complete-btn">
+                Job Completed
+            </a>
+        </div>
+
+        <div class="actions" th:if="${booking.status == 'COMPLETED'}">
+            <a th:href="@{/leave-review/{bookingId}/{revieweeId}(bookingId=${booking.id},revieweeId=${booking.owner.id})}"
+               class="review-btn">
+                Leave Review for Owner
+            </a>
+        </div>
+    </div>
+
 </div>
 
 </body>

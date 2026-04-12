@@ -4,7 +4,6 @@
     <title>Bookings - SitHappens</title>
 
     <style>
-
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f6f9;
@@ -25,7 +24,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: auto;
         }
 
@@ -52,6 +51,56 @@
             text-decoration: underline;
         }
 
+        .actions {
+            margin-top: 15px;
+        }
+
+        .actions a {
+            display: inline-block;
+            margin-right: 10px;
+            padding: 8px 12px;
+            background-color: #2ecc71;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        .actions a:hover {
+            background-color: #27ae60;
+        }
+
+        .actions form {
+            margin-top: 10px;
+        }
+
+        .actions input {
+            padding: 6px;
+            margin-right: 5px;
+            width: 60%;
+        }
+
+        .actions button {
+            padding: 6px 10px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .actions button:hover {
+            background-color: #c0392b;
+        }
+
+        .decline-message {
+            margin-top: 10px;
+            color: #c0392b;
+            font-style: italic;
+        }
+
+        .details p {
+            margin: 8px 0;
+        }
     </style>
 </head>
 
@@ -69,7 +118,6 @@
         <a th:href="@{/bookings}">Bookings</a>
         <a th:href="@{/admin}">Admin</a>
     </nav>
-
 </header>
 
 <div th:if="${#lists.isEmpty(bookings)}" class="card">
@@ -77,24 +125,87 @@
 </div>
 
 <div th:each="booking : ${bookings}" class="card">
+    <div class="details">
+        <p>
+            <strong>Owner:</strong>
+            <span th:text="${booking.owner.firstName}"></span>
+            <span th:text="${booking.owner.lastName}"></span>
+        </p>
 
-    <p>
-    <strong>Owner:</strong>
-    <span th:text="${booking.owner.firstName}"></span>
-    <span th:text="${booking.owner.lastName}"></span>
-</p>
+        <p>
+            <strong>Sitter:</strong>
+            <span th:text="${booking.sitter.firstName}"></span>
+            <span th:text="${booking.sitter.lastName}"></span>
+        </p>
 
-<p>
-    <strong>Sitter:</strong>
-    <span th:text="${booking.sitter.firstName}"></span>
-    <span th:text="${booking.sitter.lastName}"></span>
-</p>
+        <p>
+            <strong>Status:</strong>
+            <span th:text="${booking.status}"></span>
+        </p>
 
-    <p>
-        <strong>Status:</strong>
-        <span th:text="${booking.status}"></span>
+        <p th:if="${booking.pet != null}">
+            <strong>Pet Name:</strong>
+            <span th:text="${booking.pet.name}"></span>
+        </p>
+
+        <p th:if="${booking.pet != null}">
+            <strong>Pet Type:</strong>
+            <span th:text="${booking.pet.type}"></span>
+        </p>
+
+        <p th:if="${booking.pet != null}">
+            <strong>Breed:</strong>
+            <span th:text="${booking.pet.breed}"></span>
+        </p>
+
+        <p th:if="${booking.pet != null}">
+            <strong>Age:</strong>
+            <span th:text="${booking.pet.age}"></span>
+        </p>
+
+        <p th:if="${booking.pet != null}">
+            <strong>Notes:</strong>
+            <span th:text="${booking.pet.notes}"></span>
+        </p>
+
+        <p>
+            <strong>Service Type:</strong>
+            <span th:text="${booking.serviceType}"></span>
+        </p>
+
+        <p>
+            <strong>Start Date:</strong>
+            <span th:text="${booking.startDate}"></span>
+        </p>
+
+        <p>
+            <strong>End Date:</strong>
+            <span th:text="${booking.endDate}"></span>
+        </p>
+
+        <p>
+            <strong>Owner Request:</strong>
+            <span th:text="${booking.requestMessage}"></span>
+        </p>
+    </div>
+
+    <div class="actions" th:if="${booking.status == 'REQUESTED'}">
+        <a th:href="@{/accept-booking/{id}(id=${booking.id})}">
+            Accept
+        </a>
+
+        <form action="/decline-booking" method="post">
+            <input type="hidden" name="bookingId" th:value="${booking.id}" />
+            <input type="text" name="message"
+                   placeholder="Reason for declining"
+                   required />
+            <button type="submit">Decline</button>
+        </form>
+    </div>
+
+    <p class="decline-message" th:if="${booking.status == 'DECLINED'}">
+        Reason: <span th:text="${booking.declineMessage}"></span>
     </p>
-
 </div>
 
 </div>

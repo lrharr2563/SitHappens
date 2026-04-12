@@ -46,33 +46,24 @@
             text-decoration: underline;
         }
 
-        button {
+        .request-link {
+            display: inline-block;
             padding: 8px 12px;
             background-color: #27ae60;
-            border: none;
             color: white;
             border-radius: 5px;
-            cursor: pointer;
+            text-decoration: none;
             margin-top: 10px;
         }
 
-        button:hover {
+        .request-link:hover {
             background-color: #219150;
-        }
-
-        .back-link {
-            margin-top: 20px;
-            display: inline-block;
-            text-decoration: none;
-            color: #2c3e50;
         }
 
         .no-sitters {
             font-style: italic;
             color: #7f8c8d;
         }
-
-        /* ---------- NAVIGATION BAR ---------- */
 
         .navbar {
             margin-top: 15px;
@@ -101,7 +92,6 @@
         <h1>🐶 Available Sitters</h1>
         <p>Find trusted sitters for your pets</p>
 
-        <!-- Navigation Bar -->
         <nav class="navbar">
             <a th:href="@{/}">Home</a>
             <a th:href="@{/sitters}">Sitters</a>
@@ -134,9 +124,11 @@
             </a>
         </p>
 
-        <form th:action="@{/book-sitter/{id}(id=${sitter.id})}" method="post">
-            <button type="submit">Book This Sitter</button>
-        </form>
+        <p>
+            <a th:href="@{/request-booking/{id}(id=${sitter.id})}" class="request-link">
+                Request Service
+            </a>
+        </p>
 
     </div>
 

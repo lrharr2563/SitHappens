@@ -16,6 +16,7 @@
             background: white;
             padding: 25px;
             border-radius: 8px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
         }
 
         input {
@@ -31,6 +32,33 @@
             background-color: #444;
             color: white;
             border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #333;
+        }
+
+        .links {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .links a {
+            display: block;
+            margin-top: 8px;
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
         }
     </style>
 </head>
@@ -52,6 +80,15 @@
         <button type="submit">Login</button>
 
     </form>
+
+    <!-- 🔥 ERROR MESSAGE -->
+    <p th:if="${error}" th:text="${error}" class="error"></p>
+
+    <!-- 🔥 LINKS SECTION -->
+    <div class="links">
+        <a href="/forgot-password">Forgot Password?</a>
+        <a href="/register">Don't have an account? Register</a>
+    </div>
 
 </div>
 

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sitter Rating</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #3498db;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .stars {
+            font-size: 28px;
+            color: goldenrod;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>
+        <span th:text="${sitter.firstName}"></span>
+        <span th:text="${sitter.lastName}"></span>
+    </h2>
+
+    <div th:if="${averageRating == null}">
+        <p>No reviews yet.</p>
+    </div>
+
+    <div th:if="${averageRating != null}">
+        <p>
+            Average Rating:
+            <strong th:text="${#numbers.formatDecimal(averageRating, 1, 2)} + ' / 5'"></strong>
+        </p>
+    </div>
+
+    <a href="/sitters" class="back-link">Back to Sitters</a>
+</div>
+
+</body>
+</html>

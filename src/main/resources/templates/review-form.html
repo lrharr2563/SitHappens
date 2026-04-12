@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Leave Review</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #8e44ad;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #6c3483;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Leave Review</h2>
+
+    <p>
+        Reviewing:
+        <strong>
+            <span th:text="${reviewee.firstName}"></span>
+            <span th:text="${reviewee.lastName}"></span>
+        </strong>
+    </p>
+
+    <form action="/submit-review" method="post">
+
+        <input type="hidden" name="bookingId" th:value="${booking.id}" />
+        <input type="hidden" name="revieweeId" th:value="${reviewee.id}" />
+
+        <label>Rating:</label>
+        <select name="rating" required>
+            <option value="">-- Select Rating --</option>
+            <option value="1">1 - Poor</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5 - Excellent</option>
+        </select>
+
+        <label>Comment:</label>
+        <textarea name="comment" rows="5" placeholder="Write your review here..." required></textarea>
+
+        <button type="submit">Submit Review</button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

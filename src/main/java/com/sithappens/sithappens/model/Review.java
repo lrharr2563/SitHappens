@@ -6,7 +6,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 
 @Entity
 public class Review {
@@ -15,50 +14,76 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int rating; // 1-5 stars
+    private int rating; // 1-5
 
     private String comment;
 
-    // Owner who wrote the review
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private User owner;
+    private String reviewType; // OWNER_TO_SITTER or SITTER_TO_OWNER
 
-    // Sitter being reviewed
     @ManyToOne
-    @JoinColumn(name = "sitter_id")
-    private User sitter;
+    @JoinColumn(name = "reviewer_id")
+    private User reviewer;
 
-    // Booking associated with review
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "reviewee_id")
+    private User reviewee;
+
+    @ManyToOne
     @JoinColumn(name = "booking_id")
     private Booking booking;
 
-    public Review() {}
-
-    public Review(int rating, String comment, User owner, User sitter, Booking booking) {
-        this.rating = rating;
-        this.comment = comment;
-        this.owner = owner;
-        this.sitter = sitter;
-        this.booking = booking;
+    public Review() {
     }
 
-    // Getters and Setters
-    public Long getId() { return id; }
+    public Long getId() {
+        return id;
+    }
 
-    public int getRating() { return rating; }
-    public void setRating(int rating) { this.rating = rating; }
+    public int getRating() {
+        return rating;
+    }
 
-    public String getComment() { return comment; }
-    public void setComment(String comment) { this.comment = comment; }
+    public void setRating(int rating) {
+        this.rating = rating;
+    }
 
-    public User getOwner() { return owner; }
-    public void setOwner(User owner) { this.owner = owner; }
+    public String getComment() {
+        return comment;
+    }
 
-    public User getSitter() { return sitter; }
-    public void setSitter(User sitter) { this.sitter = sitter; }
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 
-    public Booking getBooking() { return booking; }
-    public void setBooking(Booking booking) { this.booking = booking; }
+    public String getReviewType() {
+        return reviewType;
+    }
+
+    public void setReviewType(String reviewType) {
+        this.reviewType = reviewType;
+    }
+
+    public User getReviewer() {
+        return reviewer;
+    }
+
+    public void setReviewer(User reviewer) {
+        this.reviewer = reviewer;
+    }
+
+    public User getReviewee() {
+        return reviewee;
+    }
+
+    public void setReviewee(User reviewee) {
+        this.reviewee = reviewee;
+    }
+
+    public Booking getBooking() {
+        return booking;
+    }
+
+    public void setBooking(Booking booking) {
+        this.booking = booking;
+    }
 }

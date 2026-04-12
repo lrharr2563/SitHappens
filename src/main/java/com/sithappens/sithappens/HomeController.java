@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.sithappens.sithappens.model.Booking;
 import com.sithappens.sithappens.model.Pet;
+import com.sithappens.sithappens.model.Review;
 import com.sithappens.sithappens.model.User;
 import com.sithappens.sithappens.repository.AvailabilityRepository;
 import com.sithappens.sithappens.repository.BookingRepository;
@@ -42,7 +43,6 @@ public class HomeController {
     @Autowired
     private PetRepository petRepository;
 
-    // 🔥 PASSWORD ENCODER
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     // 🏠 Homepage
@@ -75,11 +75,9 @@ public class HomeController {
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
-
-        // 🔥 HASH PASSWORD
         user.setPasswordHash(encoder.encode(password));
-
         user.setRole(role);
+        user.setActive(true);
 
         userRepository.save(user);
 
@@ -88,16 +86,16 @@ public class HomeController {
 
     @PostMapping("/login")
     public String loginUser(@RequestParam String email,
-                           @RequestParam String password,
-                           Model model,
-                           HttpSession session) {
+                            @RequestParam String password,
+                            Model model,
+                            HttpSession session) {
 
         List<User> users = userRepository.findAll();
 
         for (User user : users) {
-            if (user.getEmail().equals(email) &&
-                encoder.matches(password, user.getPasswordHash()) &&
-                user.isActive()) {
+            if (user.getEmail().equals(email)
+                    && encoder.matches(password, user.getPasswordHash())
+                    && user.isActive()) {
 
                 session.setAttribute("loggedInUser", user);
                 return "redirect:/dashboard";
@@ -106,6 +104,28 @@ public class HomeController {
 
         model.addAttribute("error", "Invalid login");
         return "login";
+    }
+
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
+        return "forgot-password";
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(@RequestParam String email,
+                                @RequestParam String password,
+                                Model model) {
+
+        User user = userRepository.findByEmail(email);
+
+        if (user != null) {
+            user.setPasswordHash(encoder.encode(password));
+            userRepository.save(user);
+            return "redirect:/login";
+        }
+
+        model.addAttribute("error", "Email not found");
+        return "forgot-password";
     }
 
     // Dashboard
@@ -121,21 +141,21 @@ public class HomeController {
 
         model.addAttribute("user", user);
 
-        List<Booking> bookings = bookingRepository.findAll();
+        List<Booking> allBookings = bookingRepository.findAll();
         List<Booking> userBookings = new ArrayList<>();
 
-        for (Booking booking : bookings) {
+        for (Booking booking : allBookings) {
 
-            if (user.getRole().equals("OWNER")) {
-                if (booking.getOwner() != null &&
-                    booking.getOwner().getId().equals(user.getId())) {
+            if ("OWNER".equals(user.getRole())) {
+                if (booking.getOwner() != null
+                        && booking.getOwner().getId().equals(user.getId())) {
                     userBookings.add(booking);
                 }
             }
 
-            if (user.getRole().equals("SITTER")) {
-                if (booking.getSitter() != null &&
-                    booking.getSitter().getId().equals(user.getId())) {
+            if ("SITTER".equals(user.getRole())) {
+                if (booking.getSitter() != null
+                        && booking.getSitter().getId().equals(user.getId())) {
                     userBookings.add(booking);
                 }
             }
@@ -143,11 +163,47 @@ public class HomeController {
 
         model.addAttribute("bookings", userBookings);
 
-        // 🔥 PETS
-        List<Pet> pets = petRepository.findAll();
-        model.addAttribute("pets", pets);
+        List<Long> reviewedBookingIds = new ArrayList<>();
 
-        if (user.getRole().equals("OWNER")) {
+        for (Booking booking : userBookings) {
+            if (booking.getOwner() != null && booking.getSitter() != null) {
+
+                User currentUser = user;
+                User otherUser;
+
+                if ("OWNER".equals(user.getRole())) {
+                    otherUser = booking.getSitter();
+                } else {
+                    otherUser = booking.getOwner();
+                }
+
+                Review existingReview = reviewRepository.findByBookingIdAndReviewerIdAndRevieweeId(
+                        booking.getId(),
+                        currentUser.getId(),
+                        otherUser.getId()
+                );
+
+                if (existingReview != null) {
+                    reviewedBookingIds.add(booking.getId());
+                }
+            }
+        }
+
+    model.addAttribute("reviewedBookingIds", reviewedBookingIds);
+
+        List<Pet> allPets = petRepository.findAll();
+        List<Pet> userPets = new ArrayList<>();
+
+        for (Pet pet : allPets) {
+            if (pet.getOwner() != null
+                    && pet.getOwner().getId().equals(user.getId())) {
+                userPets.add(pet);
+            }
+        }
+
+        model.addAttribute("pets", userPets);
+
+        if ("OWNER".equals(user.getRole())) {
             return "owner-dashboard";
         } else {
             return "sitter-dashboard";
@@ -157,17 +213,23 @@ public class HomeController {
     // Pet feature
 
     @GetMapping("/add-pet")
-    public String showAddPetPage() {
+    public String showAddPetPage(HttpSession session) {
+        User user = (User) session.getAttribute("loggedInUser");
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
         return "add-pet";
     }
 
     @PostMapping("/save-pet")
     public String savePet(@RequestParam String name,
-                         @RequestParam String type,
-                         @RequestParam(required = false) Integer age,
-                         @RequestParam(required = false) String breed,
-                         @RequestParam(required = false) String notes,
-                         HttpSession session) {
+                          @RequestParam String type,
+                          @RequestParam(required = false) Integer age,
+                          @RequestParam(required = false) String breed,
+                          @RequestParam(required = false) String notes,
+                          HttpSession session) {
 
         User user = (User) session.getAttribute("loggedInUser");
 
@@ -188,10 +250,16 @@ public class HomeController {
         return "redirect:/dashboard";
     }
 
-    // existing features
+    // Sitters list
 
     @GetMapping("/sitters")
-    public String viewSitters(Model model) {
+    public String viewSitters(Model model, HttpSession session) {
+
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+
+        if (loggedInUser == null) {
+            return "redirect:/login";
+        }
 
         List<User> allUsers = userRepository.findAll();
         List<User> sitters = new ArrayList<>();
@@ -207,21 +275,71 @@ public class HomeController {
         return "sitters";
     }
 
-    @PostMapping("/book-sitter/{id}")
-    public String bookSitter(@PathVariable Long id, HttpSession session) {
+    // New real booking request flow
+
+    @GetMapping("/request-booking/{id}")
+    public String showBookingRequestForm(@PathVariable Long id,
+                                         HttpSession session,
+                                         Model model) {
 
         User owner = (User) session.getAttribute("loggedInUser");
+
+        if (owner == null) {
+            return "redirect:/login";
+        }
+
         User sitter = userRepository.findById(id).orElse(null);
 
-        if (owner == null || sitter == null) {
+        if (sitter == null) {
+            return "error";
+        }
+
+        List<Pet> allPets = petRepository.findAll();
+        List<Pet> ownerPets = new ArrayList<>();
+
+        for (Pet pet : allPets) {
+            if (pet.getOwner() != null
+                    && pet.getOwner().getId().equals(owner.getId())) {
+                ownerPets.add(pet);
+            }
+        }
+
+        model.addAttribute("sitter", sitter);
+        model.addAttribute("pets", ownerPets);
+
+        return "request-booking";
+    }
+
+    @PostMapping("/request-booking")
+    public String requestBooking(@RequestParam Long sitterId,
+                                 @RequestParam Long petId,
+                                 @RequestParam String serviceType,
+                                 @RequestParam String startDate,
+                                 @RequestParam String endDate,
+                                 @RequestParam String requestMessage,
+                                 HttpSession session) {
+
+        User owner = (User) session.getAttribute("loggedInUser");
+
+        if (owner == null) {
             return "redirect:/login";
+        }
+
+        User sitter = userRepository.findById(sitterId).orElse(null);
+        Pet pet = petRepository.findById(petId).orElse(null);
+
+        if (sitter == null || pet == null) {
+            return "error";
         }
 
         Booking booking = new Booking();
         booking.setOwner(owner);
         booking.setSitter(sitter);
-        booking.setStartDate(LocalDate.now());
-        booking.setEndDate(LocalDate.now().plusDays(2));
+        booking.setPet(pet);
+        booking.setServiceType(serviceType);
+        booking.setStartDate(LocalDate.parse(startDate));
+        booking.setEndDate(LocalDate.parse(endDate));
+        booking.setRequestMessage(requestMessage);
         booking.setStatus("REQUESTED");
 
         bookingRepository.save(booking);
@@ -229,18 +347,283 @@ public class HomeController {
         return "redirect:/dashboard";
     }
 
+    // Bookings page filtered to logged-in user
+
     @GetMapping("/bookings")
-    public String getBookings(Model model) {
-        model.addAttribute("bookings", bookingRepository.findAll());
+    public String getBookings(Model model, HttpSession session) {
+
+        User user = (User) session.getAttribute("loggedInUser");
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        List<Booking> allBookings = bookingRepository.findAll();
+        List<Booking> userBookings = new ArrayList<>();
+
+        for (Booking booking : allBookings) {
+
+            if ("OWNER".equals(user.getRole())) {
+                if (booking.getOwner() != null
+                        && booking.getOwner().getId().equals(user.getId())) {
+                    userBookings.add(booking);
+                }
+            }
+
+            if ("SITTER".equals(user.getRole())) {
+                if (booking.getSitter() != null
+                        && booking.getSitter().getId().equals(user.getId())) {
+                    userBookings.add(booking);
+                }
+            }
+        }
+
+        model.addAttribute("bookings", userBookings);
         return "bookings";
     }
 
+    @GetMapping("/accept-booking/{id}")
+    public String acceptBooking(@PathVariable Long id, HttpSession session) {
+
+        User user = (User) session.getAttribute("loggedInUser");
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        Booking booking = bookingRepository.findById(id).orElse(null);
+
+        if (booking == null) {
+            return "error";
+        }
+
+        if (booking.getSitter() == null
+                || !booking.getSitter().getId().equals(user.getId())) {
+            return "error";
+        }
+
+        booking.setStatus("CONFIRMED");
+        bookingRepository.save(booking);
+
+        return "redirect:/dashboard";
+    }
+
+    @PostMapping("/decline-booking")
+    public String declineBooking(@RequestParam Long bookingId,
+                                 @RequestParam String message,
+                                 HttpSession session) {
+
+        User user = (User) session.getAttribute("loggedInUser");
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        Booking booking = bookingRepository.findById(bookingId).orElse(null);
+
+        if (booking == null) {
+            return "error";
+        }
+
+        if (booking.getSitter() == null
+                || !booking.getSitter().getId().equals(user.getId())) {
+            return "error";
+        }
+
+        booking.setStatus("DECLINED");
+        booking.setDeclineMessage(message);
+
+        bookingRepository.save(booking);
+
+        return "redirect:/dashboard";
+    }
+
+    @GetMapping("/complete-booking/{id}")
+    public String completeBooking(@PathVariable Long id, HttpSession session) {
+
+        User user = (User) session.getAttribute("loggedInUser");
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        Booking booking = bookingRepository.findById(id).orElse(null);
+
+        if (booking == null) {
+            return "error";
+        }
+
+        // only sitter can mark completed
+        if (booking.getSitter() == null || !booking.getSitter().getId().equals(user.getId())) {
+            return "error";
+        }
+
+        // only confirmed bookings can become completed
+        if (!"CONFIRMED".equals(booking.getStatus())) {
+            return "error";
+        }
+
+        booking.setStatus("COMPLETED");
+        bookingRepository.save(booking);
+
+        return "redirect:/dashboard";
+    }
+
+    @GetMapping("/leave-review/{bookingId}/{revieweeId}")
+    public String showReviewForm(@PathVariable Long bookingId,
+                                @PathVariable Long revieweeId,
+                                HttpSession session,
+                                Model model) {
+
+        User reviewer = (User) session.getAttribute("loggedInUser");
+
+        if (reviewer == null) {
+            return "redirect:/login";
+        }
+
+        Booking booking = bookingRepository.findById(bookingId).orElse(null);
+        User reviewee = userRepository.findById(revieweeId).orElse(null);
+
+        if (booking == null || reviewee == null) {
+            return "error";
+        }
+
+        if (!"COMPLETED".equals(booking.getStatus())) {
+            return "error";
+        }
+
+        // reviewer must be part of this booking
+        boolean isOwner = booking.getOwner() != null && booking.getOwner().getId().equals(reviewer.getId());
+        boolean isSitter = booking.getSitter() != null && booking.getSitter().getId().equals(reviewer.getId());
+
+        if (!isOwner && !isSitter) {
+            return "error";
+        }
+
+        // prevent duplicate review
+        Review existing = reviewRepository.findByBookingIdAndReviewerIdAndRevieweeId(
+                bookingId, reviewer.getId(), revieweeId
+        );
+
+        if (existing != null) {
+            return "redirect:/dashboard";
+        }
+
+        model.addAttribute("booking", booking);
+        model.addAttribute("reviewee", reviewee);
+
+        return "review-form";
+    }
+
+    @PostMapping("/submit-review")
+    public String submitReview(@RequestParam Long bookingId,
+                            @RequestParam Long revieweeId,
+                            @RequestParam int rating,
+                            @RequestParam String comment,
+                            HttpSession session,
+                            Model model) {
+
+        User reviewer = (User) session.getAttribute("loggedInUser");
+
+        if (reviewer == null) {
+            return "redirect:/login";
+        }
+
+        Booking booking = bookingRepository.findById(bookingId).orElse(null);
+        User reviewee = userRepository.findById(revieweeId).orElse(null);
+
+        if (booking == null || reviewee == null) {
+            model.addAttribute("error", "Booking or review user not found.");
+            return "error";
+        }
+
+        if (!"COMPLETED".equals(booking.getStatus())) {
+            model.addAttribute("error", "Reviews can only be submitted after a completed booking.");
+            return "error";
+        }
+
+        if (rating < 1 || rating > 5) {
+            model.addAttribute("error", "Rating must be between 1 and 5.");
+            return "error";
+        }
+
+        boolean reviewerIsOwner = booking.getOwner() != null
+                && booking.getOwner().getId().equals(reviewer.getId());
+
+        boolean reviewerIsSitter = booking.getSitter() != null
+                && booking.getSitter().getId().equals(reviewer.getId());
+
+        boolean revieweeIsOwner = booking.getOwner() != null
+                && booking.getOwner().getId().equals(reviewee.getId());
+
+        boolean revieweeIsSitter = booking.getSitter() != null
+                && booking.getSitter().getId().equals(reviewee.getId());
+
+        if ((!reviewerIsOwner && !reviewerIsSitter) || (!revieweeIsOwner && !revieweeIsSitter)) {
+            model.addAttribute("error", "This review is not valid for this booking.");
+            return "error";
+        }
+
+        // prevent duplicate review
+        Review existing = reviewRepository.findByBookingIdAndReviewerIdAndRevieweeId(
+                bookingId, reviewer.getId(), revieweeId
+        );
+
+        if (existing != null) {
+            return "redirect:/dashboard";
+        }
+
+        Review review = new Review();
+        review.setBooking(booking);
+        review.setReviewer(reviewer);
+        review.setReviewee(reviewee);
+        review.setRating(rating);
+        review.setComment(comment);
+
+        if (reviewerIsOwner && revieweeIsSitter) {
+            review.setReviewType("OWNER_TO_SITTER");
+        } else if (reviewerIsSitter && revieweeIsOwner) {
+            review.setReviewType("SITTER_TO_OWNER");
+        } else {
+            model.addAttribute("error", "Invalid review direction.");
+            return "error";
+        }
+
+        reviewRepository.save(review);
+
+        return "redirect:/dashboard";
+    }
+
     @GetMapping("/admin")
-    public String admin() {
+    public String admin(HttpSession session) {
+        User user = (User) session.getAttribute("loggedInUser");
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
         return "admin";
     }
 
-    // deactivate user
+    @GetMapping("/sitter-rating/{id}")
+    public String getSitterRating(@PathVariable Long id, Model model) {
+
+        User sitter = userRepository.findById(id).orElse(null);
+
+        if (sitter == null) {
+            model.addAttribute("error", "Sitter not found.");
+            return "error";
+        }
+
+        Double avg = reviewRepository.getAverageRatingForUser(id);
+
+        model.addAttribute("sitter", sitter);
+        model.addAttribute("averageRating", avg);
+
+        return "sitter-rating";
+    }
+
+    
 
     @GetMapping("/deactivate-user/{id}")
     public String deactivateUser(@PathVariable Long id, HttpSession session) {

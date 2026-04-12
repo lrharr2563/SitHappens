@@ -27,18 +27,27 @@ public class Booking {
     @JoinColumn(name = "sitter_id", nullable = false)
     private User sitter;
 
+    // Pet being booked
+    @ManyToOne
+    @JoinColumn(name = "pet_id")
+    private Pet pet;
+
     private LocalDate startDate;
     private LocalDate endDate;
 
+    private String serviceType;
+
+    private String requestMessage;
+
     private String status;
+
+    private String declineMessage;
 
     private LocalDateTime createdAt;
 
     public Booking() {
         this.createdAt = LocalDateTime.now();
     }
-
-    // Getters and Setters
 
     public Long getId() {
         return id;
@@ -60,6 +69,14 @@ public class Booking {
         this.sitter = sitter;
     }
 
+    public Pet getPet() {
+        return pet;
+    }
+
+    public void setPet(Pet pet) {
+        this.pet = pet;
+    }
+
     public LocalDate getStartDate() {
         return startDate;
     }
@@ -76,12 +93,36 @@ public class Booking {
         this.endDate = endDate;
     }
 
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public String getRequestMessage() {
+        return requestMessage;
+    }
+
+    public void setRequestMessage(String requestMessage) {
+        this.requestMessage = requestMessage;
+    }
+
     public String getStatus() {
         return status;
     }
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getDeclineMessage() {
+        return declineMessage;
+    }
+
+    public void setDeclineMessage(String declineMessage) {
+        this.declineMessage = declineMessage;
     }
 
     public LocalDateTime getCreatedAt() {
