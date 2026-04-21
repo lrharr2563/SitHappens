@@ -2,7 +2,10 @@ package com.sithappens.sithappens;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.sithappens.sithappens.model.Availability;
 import com.sithappens.sithappens.model.Booking;
 import com.sithappens.sithappens.model.Pet;
 import com.sithappens.sithappens.model.Review;
@@ -189,7 +193,7 @@ public class HomeController {
             }
         }
 
-    model.addAttribute("reviewedBookingIds", reviewedBookingIds);
+        model.addAttribute("reviewedBookingIds", reviewedBookingIds);
 
         List<Pet> allPets = petRepository.findAll();
         List<Pet> userPets = new ArrayList<>();
@@ -201,14 +205,16 @@ public class HomeController {
             }
         }
 
-        model.addAttribute("pets", userPets);
 
+        // 🔽 KEEP YOUR EXISTING RETURN LOGIC
         if ("OWNER".equals(user.getRole())) {
             return "owner-dashboard";
         } else {
             return "sitter-dashboard";
         }
     }
+
+    
 
     // Pet feature
 
@@ -279,8 +285,8 @@ public class HomeController {
 
     @GetMapping("/request-booking/{id}")
     public String showBookingRequestForm(@PathVariable Long id,
-                                         HttpSession session,
-                                         Model model) {
+                                        HttpSession session,
+                                        Model model) {
 
         User owner = (User) session.getAttribute("loggedInUser");
 
@@ -290,62 +296,122 @@ public class HomeController {
 
         User sitter = userRepository.findById(id).orElse(null);
 
+        System.out.println("CLICKED SITTER ID: " + id);
+        System.out.println("SITTER FOUND: " + sitter);
+
+        // Handle sitter not found (but DO NOT break page)
         if (sitter == null) {
-            return "error";
+            model.addAttribute("errorMessage", "Sitter not found.");
         }
 
-        List<Pet> allPets = petRepository.findAll();
-        List<Pet> ownerPets = new ArrayList<>();
+        // Always send sitter
+        model.addAttribute("sitter", sitter);
 
-        for (Pet pet : allPets) {
-            if (pet.getOwner() != null
-                    && pet.getOwner().getId().equals(owner.getId())) {
+        // ===== GET OWNER PETS =====
+        List<Pet> ownerPets = new ArrayList<>();
+        for (Pet pet : petRepository.findAll()) {
+            if (pet.getOwner() != null &&
+                pet.getOwner().getId().equals(owner.getId())) {
                 ownerPets.add(pet);
             }
         }
-
-        model.addAttribute("sitter", sitter);
         model.addAttribute("pets", ownerPets);
+
+        // ===== CALENDAR =====
+        Map<String, Map<LocalDate, String>> calendarByMonth = new LinkedHashMap<>();
+
+        LocalDate today = LocalDate.now();
+
+        // Generate 90 days (3 months)
+        for (int i = 0; i < 90; i++) {
+            LocalDate date = today.plusDays(i);
+            String month = date.getMonth().toString() + " " + date.getYear();
+
+            calendarByMonth.putIfAbsent(month, new TreeMap<>());
+            calendarByMonth.get(month).put(date, null);
+        }
+
+        // ===== AVAILABILITY =====
+        for (Availability a : availabilityRepository.findAll()) {
+            if (sitter != null &&
+                a.getSitter() != null &&
+                a.getSitter().getId().equals(sitter.getId())) {
+
+                String month = a.getAvailableDate().getMonth().toString() + " " + a.getAvailableDate().getYear();
+
+                if (calendarByMonth.containsKey(month)) {
+                    calendarByMonth.get(month).put(a.getAvailableDate(), "AVAILABLE");
+                }
+            }
+        }
+
+        // ===== BOOKINGS =====
+        for (Booking b : bookingRepository.findAll()) {
+            if (sitter != null &&
+                b.getSitter() != null &&
+                b.getSitter().getId().equals(sitter.getId())) {
+
+                LocalDate d = b.getStartDate();
+
+                while (!d.isAfter(b.getEndDate())) {
+
+                    String month = d.getMonth().toString() + " " + d.getYear();
+
+                    if (calendarByMonth.containsKey(month)) {
+                        if ("CONFIRMED".equalsIgnoreCase(b.getStatus())) {
+                            calendarByMonth.get(month).put(d, "BOOKED");
+                        } else if ("REQUESTED".equalsIgnoreCase(b.getStatus())) {
+                            calendarByMonth.get(month).put(d, "PENDING");
+                        }
+                    }
+
+                    d = d.plusDays(1);
+                }
+            }
+        }
+
+        // 🔥 THIS WAS MISSING — VERY IMPORTANT
+        model.addAttribute("calendarByMonth", calendarByMonth);
 
         return "request-booking";
     }
 
-    @PostMapping("/request-booking")
-    public String requestBooking(@RequestParam Long sitterId,
-                                 @RequestParam Long petId,
-                                 @RequestParam String serviceType,
-                                 @RequestParam String startDate,
-                                 @RequestParam String endDate,
-                                 @RequestParam String requestMessage,
-                                 HttpSession session) {
+        @PostMapping("/request-booking")
+        public String requestBooking(@RequestParam Long sitterId,
+                                    @RequestParam Long petId,
+                                    @RequestParam String serviceType,
+                                    @RequestParam String startDate,
+                                    @RequestParam String endDate,
+                                    @RequestParam String requestMessage,
+                                    HttpSession session) {
 
-        User owner = (User) session.getAttribute("loggedInUser");
+            User owner = (User) session.getAttribute("loggedInUser");
 
-        if (owner == null) {
-            return "redirect:/login";
+            if (owner == null) {
+                return "redirect:/login";
+            }
+
+            User sitter = userRepository.findById(sitterId).orElse(null);
+            Pet pet = petRepository.findById(petId).orElse(null);
+
+            if (sitter == null || pet == null) {
+                return "error";
+            }
+
+            Booking booking = new Booking();
+            booking.setOwner(owner);
+            booking.setSitter(sitter);
+            booking.setPet(pet);
+            booking.setServiceType(serviceType);
+            booking.setStartDate(LocalDate.parse(startDate));
+            booking.setEndDate(LocalDate.parse(endDate));
+            booking.setRequestMessage(requestMessage);
+            booking.setStatus("REQUESTED");
+
+            bookingRepository.save(booking);
+
+            return "redirect:/dashboard";
         }
-
-        User sitter = userRepository.findById(sitterId).orElse(null);
-        Pet pet = petRepository.findById(petId).orElse(null);
-
-        if (sitter == null || pet == null) {
-            return "error";
-        }
-
-        Booking booking = new Booking();
-        booking.setOwner(owner);
-        booking.setSitter(sitter);
-        booking.setPet(pet);
-        booking.setServiceType(serviceType);
-        booking.setStartDate(LocalDate.parse(startDate));
-        booking.setEndDate(LocalDate.parse(endDate));
-        booking.setRequestMessage(requestMessage);
-        booking.setStatus("REQUESTED");
-
-        bookingRepository.save(booking);
-
-        return "redirect:/dashboard";
-    }
 
     // Bookings page filtered to logged-in user
 
@@ -623,7 +689,112 @@ public class HomeController {
         return "sitter-rating";
     }
 
-    
+    // 📅 Toggle Availability (click date)
+    @GetMapping("/toggle-availability/{date}")
+    public String toggleAvailability(@PathVariable String date, HttpSession session) {
+
+        // get logged-in user (sitter)
+        User sitter = (User) session.getAttribute("loggedInUser");
+
+        if (sitter == null) {
+            return "redirect:/login";
+        }
+
+        LocalDate selectedDate = LocalDate.parse(date);
+
+        // check if date already exists
+        List<Availability> all = availabilityRepository.findAll();
+
+        for (Availability a : all) {
+            if (a.getSitter().getId().equals(sitter.getId()) &&
+                a.getAvailableDate().equals(selectedDate)) {
+
+                // ❌ remove availability
+                availabilityRepository.delete(a);
+                return "redirect:/availability";
+            }
+        }
+
+        // ✅ add availability
+        Availability availability = new Availability();
+        availability.setSitter(sitter);
+        availability.setAvailableDate(selectedDate);
+
+        availabilityRepository.save(availability);
+
+        return "redirect:/availability";
+    }
+
+
+    @GetMapping("/availability")
+    public String availabilityPage(HttpSession session, Model model) {
+
+        User user = (User) session.getAttribute("loggedInUser");
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        if (!user.getRole().equalsIgnoreCase("SITTER")) {
+            return "redirect:/dashboard";
+        }
+
+        Map<String, Map<LocalDate, String>> calendarByMonth = new LinkedHashMap<>();
+
+        LocalDate today = LocalDate.now();
+
+        // generate 3 months
+        for (int i = 0; i < 90; i++) {
+            LocalDate date = today.plusDays(i);
+            String month = date.getMonth().toString() + " " + date.getYear();
+
+            calendarByMonth.putIfAbsent(month, new TreeMap<>());
+            calendarByMonth.get(month).put(date, null);
+        }
+
+        // availability
+        List<Availability> allAvailability = availabilityRepository.findAll();
+        for (Availability a : allAvailability) {
+            if (a.getSitter().getId().equals(user.getId())) {
+
+                String month = a.getAvailableDate().getMonth().toString() + " " + a.getAvailableDate().getYear();
+
+                if (calendarByMonth.containsKey(month)) {
+                    calendarByMonth.get(month).put(a.getAvailableDate(), "AVAILABLE");
+                }
+            }
+        }
+
+        // bookings overlay
+        List<Booking> allBookings = bookingRepository.findAll();
+        for (Booking b : allBookings) {
+            if (b.getSitter() != null && b.getSitter().getId().equals(user.getId())) {
+
+                LocalDate date = b.getStartDate();
+
+                while (!date.isAfter(b.getEndDate())) {
+
+                    String month = date.getMonth().toString() + " " + date.getYear();
+
+                    if (calendarByMonth.containsKey(month)) {
+                        if ("CONFIRMED".equalsIgnoreCase(b.getStatus())) {
+                            calendarByMonth.get(month).put(date, "BOOKED");
+                        } else if ("REQUESTED".equalsIgnoreCase(b.getStatus())) {
+                            calendarByMonth.get(month).put(date, "PENDING");
+                        }
+                    }
+
+                    date = date.plusDays(1);
+                }
+            }
+        }
+
+        model.addAttribute("calendarByMonth", calendarByMonth);
+        model.addAttribute("user", user);
+
+        return "availability";
+    }
+
 
     @GetMapping("/deactivate-user/{id}")
     public String deactivateUser(@PathVariable Long id, HttpSession session) {

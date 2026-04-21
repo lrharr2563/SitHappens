@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Manage Availability</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .legend {
+            margin: 20px 0;
+            display: flex;
+            gap: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .calendar-day {
+            display: block;
+            padding: 14px;
+            text-align: center;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .available {
+            background-color: #4CAF50;
+        }
+
+        .pending {
+            background-color: #ff9800;
+        }
+
+        .booked {
+            background-color: #f44336;
+        }
+
+        .empty {
+            background-color: #bdc3c7;
+        }
+
+        .locked {
+            pointer-events: none;
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .note {
+            margin-top: 20px;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+
+    <h1>Manage Availability</h1>
+
+    <p>
+        Click a date to add or remove availability.<br>
+        <b>Green = Available</b>, <b>Orange = Pending</b>, <b>Red = Booked</b>
+    </p>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-box" style="background:#4CAF50;"></div>
+            Available
+        </div>
+
+        <div class="legend-item">
+            <div class="legend-box" style="background:#ff9800;"></div>
+            Pending
+        </div>
+
+        <div class="legend-item">
+            <div class="legend-box" style="background:#f44336;"></div>
+            Booked
+        </div>
+    </div>
+
+    <div th:each="monthEntry : ${calendarByMonth}">
+
+        <h2 th:text="${#strings.capitalize(#strings.toLowerCase(monthEntry.key))}"></h2>
+
+        <div class="calendar-grid">
+
+            <a th:each="entry : ${monthEntry.value}"
+            th:href="${entry.value == 'PENDING' or entry.value == 'BOOKED'} ? '#' : @{/toggle-availability/{date}(date=${entry.key})}"
+            th:class="'calendar-day ' +
+                    (${entry.value} == 'AVAILABLE' ? 'available' : '') +
+                    (${entry.value} == 'PENDING' ? ' pending locked' : '') +
+                    (${entry.value} == 'BOOKED' ? ' booked locked' : '') +
+                    (${entry.value} == null ? ' empty' : '')">
+
+                <span th:text="${#temporals.format(entry.key, 'd')}"></span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <p class="note">
+        You can click green/gray dates to toggle availability.<br>
+        Pending and booked dates are locked.
+    </p>
+
+</div>
+
+</body>
+</html>

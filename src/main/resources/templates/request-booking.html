@@ -12,7 +12,7 @@
         }
 
         .container {
-            max-width: 700px;
+            max-width: 850px;
             margin: auto;
             background: white;
             padding: 25px;
@@ -40,6 +40,48 @@
         button:hover {
             background-color: #219150;
         }
+
+        /* ===== CALENDAR ===== */
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 25px;
+        }
+
+        .calendar-day {
+            padding: 14px;
+            text-align: center;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            min-height: 40px;
+        }
+
+        .available { background-color: #4CAF50; }
+        .pending { background-color: #ff9800; }
+        .booked { background-color: #f44336; }
+        .empty { background-color: #bdc3c7; }
+
+        h3 {
+            margin-top: 40px;
+        }
+
+        h4 {
+            margin-top: 20px;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
@@ -48,17 +90,24 @@
 
     <h2>Request Service</h2>
 
+    <!-- 🔥 SAFETY CHECK -->
+    <div th:if="${sitter == null}" class="error">
+        Error: Sitter not found.
+    </div>
+
     <p>
         Requesting service from:
         <strong>
-            <span th:text="${sitter.firstName}"></span>
-            <span th:text="${sitter.lastName}"></span>
+            <span th:text="${sitter != null ? sitter.firstName : 'Unknown'}"></span>
+            <span th:text="${sitter != null ? sitter.lastName : ''}"></span>
         </strong>
     </p>
 
     <form action="/request-booking" method="post">
 
-        <input type="hidden" name="sitterId" th:value="${sitter.id}" />
+        <!-- 🔥 NULL-SAFE -->
+        <input type="hidden" name="sitterId"
+               th:value="${sitter != null ? sitter.id : 0}" />
 
         <label>Select Pet:</label>
         <select name="petId" required>
@@ -91,6 +140,31 @@
         <button type="submit">Send Request</button>
 
     </form>
+
+    <!-- ===== CALENDAR ===== -->
+
+    <h3>Sitter Availability</h3>
+
+    <div th:each="monthEntry : ${calendarByMonth}">
+
+        <h4 th:text="${#strings.capitalize(#strings.toLowerCase(monthEntry.key))}"></h4>
+
+        <div class="calendar-grid">
+
+            <div th:each="entry : ${monthEntry.value}"
+                 th:class="'calendar-day ' +
+                    (${entry.value} == 'AVAILABLE' ? 'available' : '') +
+                    (${entry.value} == 'PENDING' ? ' pending' : '') +
+                    (${entry.value} == 'BOOKED' ? ' booked' : '') +
+                    (${entry.value} == null ? ' empty' : '')">
+
+                <span th:text="${#temporals.format(entry.key, 'd')}"></span>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 

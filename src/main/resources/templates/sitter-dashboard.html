@@ -36,7 +36,7 @@
             margin-top: 15px;
         }
 
-        .accept-btn, .complete-btn, .review-btn {
+        .accept-btn, .complete-btn, .review-btn, .availability-btn {
             display: inline-block;
             padding: 8px 12px;
             color: white;
@@ -67,6 +67,14 @@
 
         .review-btn:hover {
             background-color: #6c3483;
+        }
+
+        .availability-btn {
+            background-color: #4CAF50;
+        }
+
+        .availability-btn:hover {
+            background-color: #3d9443;
         }
 
         .decline-form {
@@ -121,6 +129,7 @@
         <li>Update availability</li>
     </ul>
 
+    <a href="/availability" class="availability-btn">Manage Availability</a>
     <a href="/bookings" class="nav-link">View Bookings</a>
 
     <h3>Booking Requests</h3>
@@ -131,6 +140,7 @@
 
     <div th:each="booking : ${bookings}" class="card">
         <div class="booking-info">
+
             <p>
                 <strong>Owner:</strong>
                 <span th:text="${booking.owner.firstName}"></span>
