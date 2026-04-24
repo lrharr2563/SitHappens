@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Pet</title>
+</head>
+<body>
+
+<h1>Edit Pet 🐾</h1>
+
+<form action="/update-pet" method="post" enctype="multipart/form-data">
+
+    <input type="hidden" name="id" th:value="${pet.id}">
+
+    <label>Name:</label><br>
+    <input type="text" name="name" th:value="${pet.name}">
+    <br><br>
+
+    <label>Type:</label><br>
+    <input type="text" name="type" th:value="${pet.type}">
+    <br><br>
+
+    <label>Age:</label><br>
+    <input type="number" name="age" th:value="${pet.age}">
+    <br><br>
+
+    <label>Breed:</label><br>
+    <input type="text" name="breed" th:value="${pet.breed}">
+    <br><br>
+
+    <label>Notes:</label><br>
+    <textarea name="notes" rows="4" cols="40"
+        th:text="${pet.notes}"></textarea>
+    <br><br>
+
+    <label>Update Photo:</label><br>
+    <input type="file" name="photo">
+    <br><br>
+
+    <button type="submit">Update Pet</button>
+
+</form>
+
+<br>
+<a href="/dashboard">Back</a>
+
+</body>
+</html>

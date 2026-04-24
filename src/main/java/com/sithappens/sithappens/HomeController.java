@@ -1,5 +1,7 @@
 package com.sithappens.sithappens;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.sithappens.sithappens.model.Availability;
 import com.sithappens.sithappens.model.Booking;
@@ -205,6 +208,8 @@ public class HomeController {
             }
         }
 
+        model.addAttribute("pets", userPets);
+
 
         // 🔽 KEEP YOUR EXISTING RETURN LOGIC
         if ("OWNER".equals(user.getRole())) {
@@ -212,6 +217,26 @@ public class HomeController {
         } else {
             return "sitter-dashboard";
         }
+    }
+
+    @GetMapping("/edit-pet/{id}")
+    public String editPet(@PathVariable Long id, Model model, HttpSession session) {
+
+        User user = (User) session.getAttribute("loggedInUser");
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        Pet pet = petRepository.findById(id).orElse(null);
+
+        if (pet == null || !pet.getOwner().getId().equals(user.getId())) {
+            return "error";
+        }
+
+        model.addAttribute("pet", pet);
+
+        return "edit-pet";
     }
 
     
@@ -229,13 +254,82 @@ public class HomeController {
         return "add-pet";
     }
 
+    @PostMapping("/update-pet")
+    public String updatePet(@RequestParam Long id,
+                            @RequestParam String name,
+                            @RequestParam String type,
+                            @RequestParam(required = false) Integer age,
+                            @RequestParam(required = false) String breed,
+                            @RequestParam(required = false) String notes,
+                            @RequestParam("photo") MultipartFile photo,
+                            HttpSession session) {
+
+        User user = (User) session.getAttribute("loggedInUser");
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        Pet pet = petRepository.findById(id).orElse(null);
+
+        if (pet == null || !pet.getOwner().getId().equals(user.getId())) {
+            return "error";
+        }
+
+        // update fields
+        pet.setName(name);
+        pet.setType(type);
+        pet.setAge(age);
+        pet.setBreed(breed);
+        pet.setNotes(notes);
+    
+        System.out.println("PHOTO EMPTY? " + photo.isEmpty());
+
+        // 🖼️ update image ONLY if new one uploaded
+        // 🖼️ update image ONLY if new one uploaded
+    System.out.println("PHOTO EMPTY? " + photo.isEmpty());
+
+    if (!photo.isEmpty()) {
+        try {
+            String uploadDir = new File("src/main/resources/static/uploads/").getAbsolutePath() + "/";
+
+            // ensure folder exists
+            File directory = new File(uploadDir);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            String fileName = System.currentTimeMillis() + "_" + photo.getOriginalFilename();
+
+            System.out.println("SETTING IMAGE PATH: " + "/uploads/" + fileName);
+
+            File file = new File(uploadDir + fileName);
+            photo.transferTo(file);
+
+            pet.setImagePath("/uploads/" + fileName);
+
+            System.out.println("Saved file to: " + file.getAbsolutePath());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+        petRepository.save(pet);
+
+        System.out.println("SAVED PET IMAGE PATH: " + pet.getImagePath());
+
+        return "redirect:/dashboard";
+    }
+
     @PostMapping("/save-pet")
     public String savePet(@RequestParam String name,
-                          @RequestParam String type,
-                          @RequestParam(required = false) Integer age,
-                          @RequestParam(required = false) String breed,
-                          @RequestParam(required = false) String notes,
-                          HttpSession session) {
+                        @RequestParam String type,
+                        @RequestParam(required = false) Integer age,
+                        @RequestParam(required = false) String breed,
+                        @RequestParam(required = false) String notes,
+                        @RequestParam("photo") MultipartFile photo,
+                        HttpSession session) {
 
         User user = (User) session.getAttribute("loggedInUser");
 
@@ -250,6 +344,27 @@ public class HomeController {
         pet.setBreed(breed);
         pet.setNotes(notes);
         pet.setOwner(user);
+
+        // 🖼️ HANDLE IMAGE UPLOAD
+        if (!photo.isEmpty()) {
+            try {
+                String uploadDir = "src/main/resources/static/uploads/";
+
+                // create unique filename
+                String fileName = System.currentTimeMillis() + "_" + photo.getOriginalFilename();
+
+                File file = new File(uploadDir + fileName);
+
+                // save file
+                photo.transferTo(file);
+
+                // save path to database
+                pet.setImagePath("/uploads/" + fileName);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         petRepository.save(pet);
 

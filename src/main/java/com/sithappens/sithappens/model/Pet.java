@@ -31,6 +31,16 @@ public class Pet {
     @JoinColumn(name = "owner_id")
     private User owner;
 
+    private String imagePath;
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
     // Getters and Setters
 
     public Long getId() {

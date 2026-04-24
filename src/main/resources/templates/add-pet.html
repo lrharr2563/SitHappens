@@ -7,7 +7,7 @@
 
 <h1>Add Your Pet 🐾</h1>
 
-<form action="/save-pet" method="post">
+<form action="/save-pet" method="post" enctype="multipart/form-data">
 
     <label>Pet Name:</label><br>
     <input type="text" name="name" required>
@@ -31,7 +31,7 @@
     <br><br>
 
     <!-- PHOTO (placeholder for now) -->
-    <label>Upload Photo (coming soon):</label><br>
+    <input type="file" name="photo" accept="image/*">
     <input type="file" disabled>
     <br><br>
 

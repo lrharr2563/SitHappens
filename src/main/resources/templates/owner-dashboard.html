@@ -20,7 +20,7 @@
             background: white;
             padding: 20px;
             margin-bottom: 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
         }
 
@@ -64,7 +64,22 @@
 
         .booking-info p,
         .pet-info p {
-            margin: 8px 0;
+            margin: 6px 0;
+        }
+
+        /* 🐾 NEW PET CARD LAYOUT */
+        .pet-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .pet-image {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #ddd;
         }
     </style>
 </head>
@@ -83,13 +98,36 @@
         <p>No pets added yet.</p>
     </div>
 
-    <div th:each="pet : ${pets}" class="card">
-        <div class="pet-info">
-            <p><strong>Name:</strong> <span th:text="${pet.name}"></span></p>
-            <p><strong>Type:</strong> <span th:text="${pet.type}"></span></p>
-            <p><strong>Breed:</strong> <span th:text="${pet.breed}"></span></p>
-            <p><strong>Age:</strong> <span th:text="${pet.age}"></span></p>
-            <p><strong>Notes:</strong> <span th:text="${pet.notes}"></span></p>
+    <!-- 🐾 UPDATED PET DISPLAY -->
+        <div th:each="pet : ${pets}" class="card">
+            <a th:href="@{/edit-pet/{id}(id=${pet.id})}" 
+    style="background-color:#f39c12; color:white; padding:6px 10px; border-radius:5px; text-decoration:none;">
+    Edit
+    </a>
+
+        <div class="pet-card">
+
+            <!-- 🖼️ IMAGE -->
+            <div>
+                <img th:if="${pet.imagePath != null}"
+                     th:src="@{${pet.imagePath}}"
+                     class="pet-image">
+
+                <!-- fallback if no image -->
+                <img th:if="${pet.imagePath == null}"
+                     src="https://via.placeholder.com/120"
+                     class="pet-image">
+            </div>
+
+            <!-- 🐶 INFO -->
+            <div class="pet-info">
+                <p><strong>Name:</strong> <span th:text="${pet.name}"></span></p>
+                <p><strong>Type:</strong> <span th:text="${pet.type}"></span></p>
+                <p><strong>Breed:</strong> <span th:text="${pet.breed}"></span></p>
+                <p><strong>Age:</strong> <span th:text="${pet.age}"></span></p>
+                <p><strong>Notes:</strong> <span th:text="${pet.notes}"></span></p>
+            </div>
+
         </div>
     </div>
 
@@ -125,11 +163,11 @@
             </p>
         </div>
 
-    <div th:if="${booking.status == 'COMPLETED' and !#lists.contains(reviewedBookingIds, booking.id)}">
-        <a th:href="@{/leave-review/{bookingId}/{revieweeId}(bookingId=${booking.id},revieweeId=${booking.sitter.id})}"
-        class="review-btn">
-            Leave Review for Sitter
-        </a>
+        <div th:if="${booking.status == 'COMPLETED' and !#lists.contains(reviewedBookingIds, booking.id)}">
+            <a th:href="@{/leave-review/{bookingId}/{revieweeId}(bookingId=${booking.id},revieweeId=${booking.sitter.id})}"
+               class="review-btn">
+                Leave Review for Sitter
+            </a>
         </div>
 
         <p th:if="${booking.status == 'COMPLETED' and #lists.contains(reviewedBookingIds, booking.id)}">
