@@ -2,46 +2,139 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Add Pet</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #4a4a4a;
+            padding: 12px 30px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
+        .nav-right a:last-child {
+            margin-right: 0;
+        }
+
+        /* PAGE */
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        label {
+            font-weight: 500;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px;
+            width: 100%;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #219150;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 15px;
+            text-align: center;
+            color: #2c3e50;
+            text-decoration: none;
+        }
+    </style>
+
 </head>
 <body>
 
-<h1>Add Your Pet 🐾</h1>
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div>
+        <a href="/">Home</a>
+        <a href="/sitters">Sitters</a>
+    </div>
 
-<form action="/save-pet" method="post" enctype="multipart/form-data">
+    <div class="nav-right">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/logout">Logout</a>
+    </div>
+</nav>
 
-    <label>Pet Name:</label><br>
-    <input type="text" name="name" required>
-    <br><br>
+<!-- FORM -->
+<div class="container">
 
-    <label>Type (Dog, Cat, etc.):</label><br>
-    <input type="text" name="type" required>
-    <br><br>
+    <h1>Add Your Pet 🐾</h1>
 
-    <label>Age:</label><br>
-    <input type="number" name="age">
-    <br><br>
+    <form action="/save-pet" method="post" enctype="multipart/form-data">
 
-    <label>Breed:</label><br>
-    <input type="text" name="breed">
-    <br><br>
+        <label>Pet Name:</label>
+        <input type="text" name="name" required>
 
-    <label>About Your Pet:</label><br>
-    <textarea name="notes" rows="4" cols="40"
-        placeholder="Likes, dislikes, food, toys, behavior..."></textarea>
-    <br><br>
+        <label>Type (Dog, Cat, etc.):</label>
+        <input type="text" name="type" required>
 
-    <!-- PHOTO (placeholder for now) -->
-    <input type="file" name="photo" accept="image/*">
-    <input type="file" disabled>
-    <br><br>
+        <label>Age:</label>
+        <input type="number" name="age">
 
-    <button type="submit">Save Pet</button>
+        <label>Breed:</label>
+        <input type="text" name="breed">
 
-</form>
+        <label>About Your Pet:</label>
+        <textarea name="notes" rows="4"
+            placeholder="Likes, dislikes, food, toys, behavior..."></textarea>
 
-<br>
+        <label>Upload Photo:</label>
+        <input type="file" name="photo" accept="image/*">
 
-<a href="/dashboard">Back to Dashboard</a>
+        <button type="submit">Save Pet</button>
+
+    </form>
+
+    <a href="/dashboard" class="back-link">⬅ Back to Dashboard</a>
+
+</div>
 
 </body>
 </html>

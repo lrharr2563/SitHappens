@@ -5,15 +5,14 @@
 
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
-            padding: 40px;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #faf7f5;
             margin: 0;
         }
 
         .container {
             max-width: 900px;
-            margin: auto;
+            margin: 30px auto;
         }
 
         .card {
@@ -74,6 +73,25 @@
             gap: 20px;
         }
 
+        nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #444;
+        padding: 15px 40px;
+    }
+
+    nav a {
+        color: white;
+        margin-right: 15px;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    nav a:hover {
+        text-decoration: underline;
+    }
+
         .pet-image {
             width: 120px;
             height: 120px;
@@ -81,9 +99,25 @@
             border-radius: 10px;
             border: 2px solid #ddd;
         }
+
     </style>
 </head>
 <body>
+
+<body>
+
+<!-- NAVBAR -->
+<nav>
+    <div>
+        <a href="/">Home</a>
+        <a href="/sitters">Sitters</a>
+    </div>
+
+    <div>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/logout">Logout</a>
+    </div>
+</nav>
 
 <div class="container">
 

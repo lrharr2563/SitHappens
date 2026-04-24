@@ -5,38 +5,81 @@
 
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
-            padding: 40px;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #faf7f5;
+            margin: 0;
         }
 
+        /* NAVBAR */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #444;
+            padding: 15px 40px;
+        }
+
+        nav a {
+            color: white;
+            margin-right: 15px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* CENTERING WRAPPER */
+        .wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 85vh;
+        }
+
+        /* LOGIN CARD */
         .container {
+            width: 100%;
             max-width: 400px;
-            margin: auto;
             background: white;
             padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        label {
+            font-weight: 500;
+            font-size: 14px;
         }
 
         input {
             width: 100%;
-            padding: 8px;
-            margin-top: 8px;
+            padding: 10px;
+            margin-top: 5px;
             margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
 
+        /* BUTTON (matches homepage now) */
         button {
             padding: 10px;
             width: 100%;
-            background-color: #444;
+            background-color: #e67e22;
             color: white;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
         }
 
         button:hover {
-            background-color: #333;
+            background-color: #cf711f;
         }
 
         .links {
@@ -65,29 +108,46 @@
 
 <body>
 
-<div class="container">
+<!-- NAVBAR -->
+<nav>
+    <div>
+        <a href="/">Home</a>
+        <a href="/sitters">Sitters</a>
+    </div>
 
-    <h2>Login</h2>
+    <div>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+    </div>
+</nav>
 
-    <form action="/login" method="post">
+<div class="wrapper">
 
-        <label>Email:</label>
-        <input type="text" name="email" required>
+    <div class="container">
 
-        <label>Password:</label>
-        <input type="password" name="password" required>
+        <h2>🔐 Login</h2>
 
-        <button type="submit">Login</button>
+        <form action="/login" method="post">
 
-    </form>
+            <label>Email:</label>
+            <input type="email" name="email" required>
 
-    <!-- 🔥 ERROR MESSAGE -->
-    <p th:if="${error}" th:text="${error}" class="error"></p>
+            <label>Password:</label>
+            <input type="password" name="password" required>
 
-    <!-- 🔥 LINKS SECTION -->
-    <div class="links">
-        <a href="/forgot-password">Forgot Password?</a>
-        <a href="/register">Don't have an account? Register</a>
+            <button type="submit">Login</button>
+
+        </form>
+
+        <!-- ERROR MESSAGE -->
+        <p th:if="${error}" th:text="${error}" class="error"></p>
+
+        <!-- LINKS -->
+        <div class="links">
+            <a href="/forgot-password">Forgot Password?</a>
+            <a href="/register">Don't have an account? Register</a>
+        </div>
+
     </div>
 
 </div>
