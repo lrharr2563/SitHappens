@@ -10,9 +10,32 @@
             margin: 0;
         }
 
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #444;
+            padding: 15px 40px;
+        }
+
+        nav a {
+            color: white;
+            margin-right: 15px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
         .container {
             max-width: 900px;
             margin: 30px auto;
+        }
+
+        .section {
+            margin-top: 30px;
         }
 
         .card {
@@ -61,36 +84,11 @@
             background-color: #21618c;
         }
 
-        .booking-info p,
-        .pet-info p {
-            margin: 6px 0;
-        }
-
-        /* 🐾 NEW PET CARD LAYOUT */
         .pet-card {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-
-        nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #444;
-        padding: 15px 40px;
-    }
-
-    nav a {
-        color: white;
-        margin-right: 15px;
-        text-decoration: none;
-        font-weight: 500;
-    }
-
-    nav a:hover {
-        text-decoration: underline;
-    }
 
         .pet-image {
             width: 120px;
@@ -100,9 +98,15 @@
             border: 2px solid #ddd;
         }
 
+        .review {
+            background-color: #eef6ff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
     </style>
 </head>
-<body>
 
 <body>
 
@@ -126,53 +130,74 @@
     <a href="/add-pet" class="add-pet-btn">Add Pet</a>
     <a href="/sitters" class="find-sitter-btn">Find a Sitter</a>
 
-    <h3>Your Pets</h3>
+    <!-- 🐾 PETS -->
+    <div class="section">
+        <h2>Your Pets</h2>
 
-    <div th:if="${#lists.isEmpty(pets)}" class="card">
-        <p>No pets added yet.</p>
-    </div>
+        <div th:if="${#lists.isEmpty(pets)}" class="card">
+            <p>No pets added yet.</p>
+        </div>
 
-    <!-- 🐾 UPDATED PET DISPLAY -->
         <div th:each="pet : ${pets}" class="card">
-            <a th:href="@{/edit-pet/{id}(id=${pet.id})}" 
-    style="background-color:#f39c12; color:white; padding:6px 10px; border-radius:5px; text-decoration:none;">
-    Edit
-    </a>
 
-        <div class="pet-card">
+            <a th:href="@{/edit-pet/{id}(id=${pet.id})}"
+               style="background-color:#f39c12; color:white; padding:6px 10px; border-radius:5px; text-decoration:none;">
+                Edit
+            </a>
 
-            <!-- 🖼️ IMAGE -->
-            <div>
-                <img th:if="${pet.imagePath != null}"
-                     th:src="@{${pet.imagePath}}"
-                     class="pet-image">
+            <div class="pet-card">
 
-                <!-- fallback if no image -->
-                <img th:if="${pet.imagePath == null}"
-                     src="https://via.placeholder.com/120"
-                     class="pet-image">
+                <div>
+                    <img th:if="${pet.imagePath != null}"
+                         th:src="@{${pet.imagePath}}"
+                         class="pet-image">
+
+                    <img th:if="${pet.imagePath == null}"
+                         src="https://via.placeholder.com/120"
+                         class="pet-image">
+                </div>
+
+                <div>
+                    <p><strong>Name:</strong> <span th:text="${pet.name}"></span></p>
+                    <p><strong>Type:</strong> <span th:text="${pet.type}"></span></p>
+                    <p><strong>Breed:</strong> <span th:text="${pet.breed}"></span></p>
+                    <p><strong>Age:</strong> <span th:text="${pet.age}"></span></p>
+                    <p><strong>Notes:</strong> <span th:text="${pet.notes}"></span></p>
+                </div>
+
             </div>
-
-            <!-- 🐶 INFO -->
-            <div class="pet-info">
-                <p><strong>Name:</strong> <span th:text="${pet.name}"></span></p>
-                <p><strong>Type:</strong> <span th:text="${pet.type}"></span></p>
-                <p><strong>Breed:</strong> <span th:text="${pet.breed}"></span></p>
-                <p><strong>Age:</strong> <span th:text="${pet.age}"></span></p>
-                <p><strong>Notes:</strong> <span th:text="${pet.notes}"></span></p>
-            </div>
-
         </div>
     </div>
 
-    <h3>Your Bookings</h3>
+    <!-- ⭐ REVIEWS ABOUT OWNER -->
+    <div class="section">
+        <h2>Reviews About You</h2>
 
-    <div th:if="${#lists.isEmpty(bookings)}" class="card">
-        <p>No bookings yet.</p>
+        <div th:if="${#lists.isEmpty(ownerReviews)}">
+            <p>No reviews yet.</p>
+        </div>
+
+        <div th:each="review : ${ownerReviews}" class="review">
+            <p><strong>Rating:</strong>
+                <span th:text="${review.rating}"></span> ⭐
+            </p>
+
+            <p><strong>Comment:</strong>
+                <span th:text="${review.comment}"></span>
+            </p>
+        </div>
     </div>
 
-    <div th:each="booking : ${bookings}" class="card">
-        <div class="booking-info">
+    <!-- 📅 BOOKINGS -->
+    <div class="section">
+        <h2>Your Bookings</h2>
+
+        <div th:if="${#lists.isEmpty(bookings)}" class="card">
+            <p>No bookings yet.</p>
+        </div>
+
+        <div th:each="booking : ${bookings}" class="card">
+
             <p>
                 <strong>Sitter:</strong>
                 <span th:text="${booking.sitter.firstName}"></span>
@@ -195,18 +220,20 @@
                 <strong>Decline Reason:</strong>
                 <span th:text="${booking.declineMessage}"></span>
             </p>
-        </div>
 
-        <div th:if="${booking.status == 'COMPLETED' and !#lists.contains(reviewedBookingIds, booking.id)}">
-            <a th:href="@{/leave-review/{bookingId}/{revieweeId}(bookingId=${booking.id},revieweeId=${booking.sitter.id})}"
-               class="review-btn">
-                Leave Review for Sitter
-            </a>
-        </div>
+            <!-- REVIEW BUTTON -->
+            <div th:if="${booking.status == 'COMPLETED' and !#lists.contains(reviewedBookingIds, booking.id)}">
+                <a th:href="@{/leave-review/{bookingId}/{revieweeId}(bookingId=${booking.id},revieweeId=${booking.sitter.id})}"
+                   class="review-btn">
+                    Leave Review for Sitter
+                </a>
+            </div>
 
-        <p th:if="${booking.status == 'COMPLETED' and #lists.contains(reviewedBookingIds, booking.id)}">
-            Review already submitted.
-        </p>
+            <p th:if="${booking.status == 'COMPLETED' and #lists.contains(reviewedBookingIds, booking.id)}">
+                ✔ Review already submitted
+            </p>
+
+        </div>
     </div>
 
 </div>

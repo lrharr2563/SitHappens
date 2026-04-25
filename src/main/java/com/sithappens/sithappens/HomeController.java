@@ -147,6 +147,9 @@ public class HomeController {
         }
 
         model.addAttribute("user", user);
+        // 🔥 GET REVIEWS ABOUT THIS OWNER
+        List<Review> ownerReviews = reviewRepository.findByRevieweeId(user.getId());
+        model.addAttribute("ownerReviews", ownerReviews);
 
         List<Booking> allBookings = bookingRepository.findAll();
         List<Booking> userBookings = new ArrayList<>();
@@ -350,16 +353,24 @@ public class HomeController {
             try {
                 String uploadDir = "src/main/resources/static/uploads/";
 
+                // ✅ MAKE SURE FOLDER EXISTS
+                File uploadFolder = new File(uploadDir);
+                if (!uploadFolder.exists()) {
+                    uploadFolder.mkdirs();
+                }
+
                 // create unique filename
                 String fileName = System.currentTimeMillis() + "_" + photo.getOriginalFilename();
 
-                File file = new File(uploadDir + fileName);
+                File file = new File(uploadFolder, fileName);
 
                 // save file
                 photo.transferTo(file);
 
                 // save path to database
                 pet.setImagePath("/uploads/" + fileName);
+
+                System.out.println("Saved file to: " + file.getAbsolutePath());
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -498,8 +509,15 @@ public class HomeController {
                                     @RequestParam String startDate,
                                     @RequestParam String endDate,
                                     @RequestParam String requestMessage,
-                                    HttpSession session) {
+                                    @RequestParam(required = false) String contactInfo,
+                                    HttpSession session,
+                                    Model model) {
+            
+            // 🔥 ADD THIS RIGHT HERE
+            System.out.println("===== REQUEST BOOKING HIT =====");
+            System.out.println("CONTACT INFO: " + contactInfo);
 
+        
             User owner = (User) session.getAttribute("loggedInUser");
 
             if (owner == null) {
@@ -509,21 +527,57 @@ public class HomeController {
             User sitter = userRepository.findById(sitterId).orElse(null);
             Pet pet = petRepository.findById(petId).orElse(null);
 
-            if (sitter == null || pet == null) {
+            // 🔍 DEBUG LOGS (super helpful)
+            System.out.println("===== BOOKING DEBUG =====");
+            System.out.println("OWNER: " + owner);
+            System.out.println("SITTER: " + sitter);
+            System.out.println("PET: " + pet);
+            System.out.println("START: " + startDate);
+            System.out.println("END: " + endDate);
+            System.out.println("CONTACT INFO: " + contactInfo);
+
+            // 🚨 PREVENT CRASHES
+            if (sitter == null) {
+                model.addAttribute("error", "Sitter not found.");
                 return "error";
             }
 
-            Booking booking = new Booking();
-            booking.setOwner(owner);
-            booking.setSitter(sitter);
-            booking.setPet(pet);
-            booking.setServiceType(serviceType);
-            booking.setStartDate(LocalDate.parse(startDate));
-            booking.setEndDate(LocalDate.parse(endDate));
-            booking.setRequestMessage(requestMessage);
-            booking.setStatus("REQUESTED");
+            if (pet == null) {
+                model.addAttribute("error", "Pet not found.");
+                return "error";
+            }
 
-            bookingRepository.save(booking);
+            try {
+                Booking booking = new Booking();
+        
+
+                booking.setOwner(owner);
+                booking.setSitter(sitter);   // 🔥 IMPORTANT
+                booking.setPet(pet);
+
+                booking.setServiceType(serviceType);
+
+                // ✅ Safe date parsing
+                booking.setStartDate(LocalDate.parse(startDate));
+                booking.setEndDate(LocalDate.parse(endDate));
+
+                booking.setRequestMessage(requestMessage);
+                booking.setStatus("REQUESTED");
+
+                // ✅ NEW FIELD (safe)
+                booking.setContactInfo(contactInfo);
+
+                bookingRepository.save(booking);
+
+                System.out.println("✅ BOOKING SAVED SUCCESSFULLY");
+
+            } catch (Exception e) {
+                System.out.println("❌ ERROR SAVING BOOKING");
+                e.printStackTrace();
+
+                model.addAttribute("error", "Something went wrong creating the booking.");
+                return "error";
+            }
 
             return "redirect:/dashboard";
         }
@@ -728,24 +782,23 @@ public class HomeController {
             return "error";
         }
 
-        boolean reviewerIsOwner = booking.getOwner() != null
-                && booking.getOwner().getId().equals(reviewer.getId());
-
-        boolean reviewerIsSitter = booking.getSitter() != null
-                && booking.getSitter().getId().equals(reviewer.getId());
-
-        boolean revieweeIsOwner = booking.getOwner() != null
-                && booking.getOwner().getId().equals(reviewee.getId());
-
-        boolean revieweeIsSitter = booking.getSitter() != null
+        // ✅ Validate review direction (clean + reliable)
+        boolean isOwnerReview = booking.getOwner() != null
+                && booking.getSitter() != null
+                && booking.getOwner().getId().equals(reviewer.getId())
                 && booking.getSitter().getId().equals(reviewee.getId());
 
-        if ((!reviewerIsOwner && !reviewerIsSitter) || (!revieweeIsOwner && !revieweeIsSitter)) {
+        boolean isSitterReview = booking.getOwner() != null
+                && booking.getSitter() != null
+                && booking.getSitter().getId().equals(reviewer.getId())
+                && booking.getOwner().getId().equals(reviewee.getId());
+
+        if (!isOwnerReview && !isSitterReview) {
             model.addAttribute("error", "This review is not valid for this booking.");
             return "error";
         }
 
-        // prevent duplicate review
+        // ✅ Prevent duplicate review
         Review existing = reviewRepository.findByBookingIdAndReviewerIdAndRevieweeId(
                 bookingId, reviewer.getId(), revieweeId
         );
@@ -754,6 +807,7 @@ public class HomeController {
             return "redirect:/dashboard";
         }
 
+        // ✅ Create review
         Review review = new Review();
         review.setBooking(booking);
         review.setReviewer(reviewer);
@@ -761,18 +815,20 @@ public class HomeController {
         review.setRating(rating);
         review.setComment(comment);
 
-        if (reviewerIsOwner && revieweeIsSitter) {
+        // ✅ Set review type (FIXED LOGIC)
+        if (isOwnerReview) {
             review.setReviewType("OWNER_TO_SITTER");
-        } else if (reviewerIsSitter && revieweeIsOwner) {
-            review.setReviewType("SITTER_TO_OWNER");
         } else {
-            model.addAttribute("error", "Invalid review direction.");
-            return "error";
+            review.setReviewType("SITTER_TO_OWNER");
         }
 
         reviewRepository.save(review);
 
-        return "redirect:/dashboard";
+        if ("OWNER".equals(reviewer.getRole())) {
+            return "redirect:/dashboard";
+        } else {
+            return "redirect:/dashboard";
+        }
     }
 
     @GetMapping("/admin")
@@ -796,10 +852,16 @@ public class HomeController {
             return "error";
         }
 
+        // average rating (what you already have)
         Double avg = reviewRepository.getAverageRatingForUser(id);
+
+        // 🔥 NEW: get all reviews for this sitter
+        List<Review> reviews = reviewRepository.findByRevieweeId(id);
 
         model.addAttribute("sitter", sitter);
         model.addAttribute("averageRating", avg);
+        model.addAttribute("reviews", reviews);   // 🔥 IMPORTANT
+       
 
         return "sitter-rating";
     }
@@ -910,6 +972,11 @@ public class HomeController {
         return "availability";
     }
 
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate(); // clears login session
+        return "redirect:/";
+    }
 
     @GetMapping("/deactivate-user/{id}")
     public String deactivateUser(@PathVariable Long id, HttpSession session) {

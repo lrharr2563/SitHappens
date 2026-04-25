@@ -103,7 +103,7 @@
         </strong>
     </p>
 
-    <form action="/request-booking" method="post">
+    <form th:action="@{/request-booking}" method="post">
 
         <!-- 🔥 NULL-SAFE -->
         <input type="hidden" name="sitterId"
@@ -136,8 +136,10 @@
         <textarea name="requestMessage" rows="5"
                   placeholder="Hi, I am looking for care for my pet during these dates."
                   required></textarea>
+        <label>Contact Info (Phone or Email):</label>
+        <input type="text" name="contactInfo" placeholder="Enter phone number or email">
 
-        <button type="submit">Send Request</button>
+        <button type="submit" formmethod="post">Send Request</button>
 
     </form>
 

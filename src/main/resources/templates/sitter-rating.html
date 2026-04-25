@@ -5,59 +5,129 @@
 
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
-            padding: 40px;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #faf7f5;
             margin: 0;
         }
 
+        /* NAVBAR */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #444;
+            padding: 15px 40px;
+        }
+
+        nav a {
+            color: white;
+            margin-right: 15px;
+            text-decoration: none;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* CONTAINER */
         .container {
             max-width: 700px;
-            margin: auto;
+            margin: 40px auto;
+        }
+
+        .card {
             background: white;
             padding: 25px;
-            border-radius: 8px;
+            border-radius: 10px;
             box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        h3 {
+            margin-top: 25px;
+            color: #2c3e50;
+        }
+
+        .review {
+            background-color: #eef6ff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .stars {
+            color: #f39c12;
+            font-weight: bold;
         }
 
         .back-link {
             display: inline-block;
-            margin-top: 20px;
-            text-decoration: none;
+            margin-top: 15px;
             color: #3498db;
+            text-decoration: none;
         }
 
         .back-link:hover {
             text-decoration: underline;
         }
 
-        .stars {
-            font-size: 28px;
-            color: goldenrod;
-            margin-top: 10px;
-        }
     </style>
 </head>
+
 <body>
 
+<nav>
+    <div>
+        <a href="/">Home</a>
+        <a href="/sitters">Sitters</a>
+    </div>
+
+    <div>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/logout">Logout</a>
+    </div>
+</nav>
+
 <div class="container">
-    <h2>
-        <span th:text="${sitter.firstName}"></span>
-        <span th:text="${sitter.lastName}"></span>
-    </h2>
 
-    <div th:if="${averageRating == null}">
-        <p>No reviews yet.</p>
-    </div>
+    <div class="card">
 
-    <div th:if="${averageRating != null}">
+        <!-- 🔥 FIXED: use sitter instead of user -->
+        <h2 th:text="${sitter.firstName + ' ' + sitter.lastName}"></h2>
+
         <p>
-            Average Rating:
-            <strong th:text="${#numbers.formatDecimal(averageRating, 1, 2)} + ' / 5'"></strong>
+            <strong>Average Rating:</strong>
+            <span th:text="${averageRating != null ? averageRating : 0}"></span> / 5 ⭐
         </p>
+
+        <h3>Reviews</h3>
+
+        <!-- IF NO REVIEWS -->
+        <p th:if="${#lists.isEmpty(reviews)}">No reviews yet.</p>
+
+        <!-- LOOP REVIEWS -->
+        <div th:each="review : ${reviews}" class="review">
+
+            <p class="stars">
+                Rating:
+                <span th:text="${review.rating}"></span> ⭐
+            </p>
+
+            <p>
+                <strong>Comment:</strong>
+                <span th:text="${review.comment}"></span>
+            </p>
+
+        </div>
+
+        <a href="/sitters" class="back-link">← Back to Sitters</a>
+
     </div>
 
-    <a href="/sitters" class="back-link">Back to Sitters</a>
 </div>
 
 </body>

@@ -3,6 +3,7 @@ package com.sithappens.sithappens.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,6 +32,10 @@ public class Booking {
     @ManyToOne
     @JoinColumn(name = "pet_id")
     private Pet pet;
+
+    // ✅ NEW FIELD (Contact Info)
+    @Column(name = "contact_info")
+    private String contactInfo;
 
     private LocalDate startDate;
     private LocalDate endDate;
@@ -75,6 +80,14 @@ public class Booking {
 
     public void setPet(Pet pet) {
         this.pet = pet;
+    }
+
+    public String getContactInfo() {
+        return contactInfo;
+    }
+
+    public void setContactInfo(String contactInfo) {
+        this.contactInfo = contactInfo;
     }
 
     public LocalDate getStartDate() {
@@ -129,4 +142,3 @@ public class Booking {
         return createdAt;
     }
 }
-

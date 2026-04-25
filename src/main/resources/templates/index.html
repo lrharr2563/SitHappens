@@ -11,7 +11,6 @@
             padding: 0;
         }
 
-        /* NAVBAR */
         nav {
             display: flex;
             justify-content: space-between;
@@ -31,13 +30,11 @@
             text-decoration: underline;
         }
 
-        /* MAIN CONTAINER (CENTERED NOW) */
         .container {
             max-width: 900px;
-            margin: 30px auto; /* centered */
+            margin: 30px auto;
         }
 
-        /* HERO */
         header {
             background-color: #f5e6dc;
             padding: 30px;
@@ -59,7 +56,6 @@
             margin-top: 30px;
         }
 
-        /* CARDS */
         .card {
             background: #ffffff;
             padding: 15px;
@@ -67,17 +63,11 @@
             border-radius: 6px;
             border: 1px solid #ddd;
             box-shadow: 0px 1px 4px rgba(0,0,0,0.05);
-            transition: transform 0.15s ease;
         }
 
-        .card:hover {
-            transform: translateY(-2px);
-        }
-
-        /* BUTTON */
         button {
             padding: 10px 14px;
-            background-color: #e67e22; /* warmer color */
+            background-color: #e67e22;
             color: white;
             border: none;
             border-radius: 5px;
@@ -88,21 +78,37 @@
             background-color: #cf711f;
         }
 
-        /* IMAGE */
         img {
             border-radius: 10px;
         }
 
-        /* SERVICES (adds slight color variety) */
         .service {
             background-color: #fff3e6;
             border-left: 5px solid #e67e22;
         }
 
-        /* SITTER CARDS */
         .sitter {
             background-color: #eef6ff;
             border-left: 5px solid #3498db;
+        }
+
+        .sitter-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .sitter-card img {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .sitter-card img:hover {
+            transform: scale(1.05);
         }
 
     </style>
@@ -110,9 +116,7 @@
 
 <body>
 
-<!-- NAVBAR -->
 <nav>
-
     <div>
         <a href="/">Home</a>
         <a href="/sitters">Sitters</a>
@@ -122,104 +126,106 @@
         <a href="/login">Login</a>
         <a href="/register" style="margin-left: 15px;">Register</a>
     </div>
-
 </nav>
 
 <div class="container">
 
-    <!-- HERO SECTION -->
-    <header>
-        <h1>SitHappens</h1>
-        <p>Find someone you trust to take care of your pet</p>
+<header>
+    <h1>SitHappens</h1>
+    <p>Find someone you trust to take care of your pet</p>
 
-        <div style="margin-top:15px;">
-            <a href="/sitters">
-                <button>Find a Sitter</button>
-            </a>
-        </div>
-    </header>
-
-    <!-- HERO IMAGE -->
-    <div class="section">
-        <img src="/images/willowandbret.jpg"
-                style="width:100%; height:300px; object-fit:cover; object-position: center 70%;">
+    <div style="margin-top:15px;">
+        <a href="/sitters">
+            <button>Find a Sitter</button>
+        </a>
     </div>
+</header>
 
-    <!-- SERVICES -->
-    <div class="section">
-        <h2>Our Services</h2>
+<div class="section">
+    <img src="/images/willowandbret.jpg"
+         style="width:100%; height:300px; object-fit:cover; object-position: center 70%;">
+</div>
 
-        <div class="card service">Dog Sitting</div>
-        <div class="card service">Cat Care</div>
-        <div class="card service">Overnight Stays</div>
-        <div class="card service">Daily Check-ins</div>
-    </div>
+<div class="section">
+    <h2>Our Services</h2>
 
-    <!-- MEET THE SITTERS -->
-    <div class="section">
-        <h2>Meet Our Sitters</h2>
+    <div class="card service">Dog Sitting</div>
+    <div class="card service">Cat Care</div>
+    <div class="card service">Overnight Stays</div>
+    <div class="card service">Daily Check-ins</div>
+</div>
 
-        <div class="card sitter">
-            <strong>Lauren</strong>
-            <p>Loves dogs and making sure pets feel safe and happy while you're away.</p>
-        </div>
+<div class="section">
+    <h2>Meet Our Sitters</h2>
 
-        <div class="card sitter">
-            <strong>Margaret</strong>
-            <p>Experienced with both cats and dogs and enjoys spending time with animals.</p>
-        </div>
-
-        <div class="card sitter">
-            <strong>Vida</strong>
-            <p>Reliable and caring sitter who makes sure every pet gets attention and care.</p>
-        </div>
-    </div>
-
-    <!-- ABOUT -->
-    <div class="section">
-        <h2>About Us</h2>
-
-        <div class="card">
+    <div class="card sitter sitter-card">
+        <img src="/images/lauren.jpg" alt="Lauren" onclick="openImage(this)">
+        <div>
+            <strong style="font-size:18px;">Lauren</strong>
             <p>
-                SitHappens was created as a student project to make finding a trusted pet sitter simple.
-                We wanted to build something that feels easy to use while also helping pet owners feel
-                comfortable leaving their pets in good hands.
+                Passionate dog lover with experience caring for pets of all sizes.
+                I make sure every pet feels safe, comfortable, and loved while their
+                owners are away. I enjoy long walks, playtime, and keeping pets on
+                their normal routines.
             </p>
         </div>
     </div>
 
-    <!-- TEST USERS -->
-    <div class="section">
-        <h2>All Users (Testing)</h2>
-
-        <div th:if="${#lists.isEmpty(users)}">
-            <p>No users yet.</p>
-        </div>
-
-        <div th:each="user : ${users}" class="card">
+    <div class="card sitter sitter-card">
+        <img src="/images/margaret.jpg" alt="Margaret" onclick="openImage(this)">
+        <div>
+            <strong style="font-size:18px;">Margaret</strong>
             <p>
-                <strong>Name:</strong>
-                <span th:text="${user.firstName}"></span>
-                <span th:text="${user.lastName}"></span>
-            </p>
-
-            <p>
-                <strong>Email:</strong>
-                <span th:text="${user.email}"></span>
-            </p>
-
-            <p>
-                <strong>Role:</strong>
-                <span th:text="${user.role}"></span>
+                Experienced with both cats and dogs, Margaret is patient and
+                attentive to every pet’s needs.
             </p>
         </div>
+    </div>
 
-        <form th:action="@{/create-user}" method="post">
-            <button type="submit">Add Test User</button>
-        </form>
+    <div class="card sitter sitter-card">
+        <img src="/images/vida.jpg" alt="Vida" onclick="openImage(this)">
+        <div>
+            <strong style="font-size:18px;">Vida</strong>
+            <p>
+                Reliable and caring sitter who ensures every pet gets the attention
+                they deserve.
+            </p>
+        </div>
     </div>
 
 </div>
+
+<div class="section">
+    <h2>About Us</h2>
+
+    <div class="card">
+        <p>
+            SitHappens was created as a student project to make finding a trusted pet sitter simple.
+        </p>
+    </div>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div id="imageModal"
+     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.8); justify-content:center; align-items:center;">
+
+    <img id="modalImage"
+         style="max-width:80%; max-height:80%; border-radius:10px;">
+</div>
+
+<script>
+function openImage(img) {
+    document.getElementById("imageModal").style.display = "flex";
+    document.getElementById("modalImage").src = img.src;
+}
+
+document.getElementById("imageModal").onclick = function () {
+    this.style.display = "none";
+};
+</script>
 
 </body>
 </html>
