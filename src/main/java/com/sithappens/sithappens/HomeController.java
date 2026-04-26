@@ -992,6 +992,55 @@ public class HomeController {
 
         return "redirect:/";
     }
+
+    @PostMapping("/delete-account")
+    public String deleteAccount(HttpSession session) {
+
+        User user = (User) session.getAttribute("loggedInUser");
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        Long userId = user.getId();
+
+        // ✅ 1. Delete reviews FIRST
+        reviewRepository.deleteAll(
+            reviewRepository.findAll().stream()
+                .filter(r -> r.getReviewer().getId().equals(userId) ||
+                            r.getReviewee().getId().equals(userId))
+                .toList()
+        );
+
+        // ✅ 2. Delete bookings
+        bookingRepository.deleteAll(
+            bookingRepository.findAll().stream()
+                .filter(b -> b.getOwner().getId().equals(userId) ||
+                            b.getSitter().getId().equals(userId))
+                .toList()
+        );
+
+        // ✅ 3. Delete availability
+        availabilityRepository.deleteAll(
+            availabilityRepository.findAll().stream()
+                .filter(a -> a.getSitter().getId().equals(userId))
+                .toList()
+        );
+
+        // ✅ 4. Delete pets
+        petRepository.deleteAll(
+            petRepository.findAll().stream()
+                .filter(p -> p.getOwner().getId().equals(userId))
+                .toList()
+        );
+
+        // ✅ 5. Delete user LAST
+        userRepository.deleteById(userId);
+
+        session.invalidate();
+
+        return "redirect:/";
+    }
 }
 
 
