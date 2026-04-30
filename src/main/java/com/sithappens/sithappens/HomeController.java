@@ -52,7 +52,11 @@ public class HomeController {
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    // 🏠 Homepage
+    // loads homepage and displays basic user data
+    // Lauren: set up homepage route and connected data from backend
+    // Margaret: worked on frontend homepage layout and display
+    // Homepage
+
     @GetMapping("/")
     public String home(Model model) {
         model.addAttribute("users", userRepository.findAll());
@@ -60,16 +64,28 @@ public class HomeController {
     }
 
     // Login and Register
+    // shows login page
+    // Margaret: worked on login page UI
+    // Lauren: connected route to backend
 
     @GetMapping("/login")
     public String loginPage() {
         return "login";
     }
 
+    // shows registration page
+    // Margaret: worked on registration page UI
+    // Lauren: connected route to backend
+
     @GetMapping("/register")
     public String registerPage() {
         return "register";
     }
+
+    // handles user registration and saves new user
+    // Lauren: implemented backend user creation and password hashing
+    // Margaret: worked on registration form and sending data here
+    // Vida: helped test registration flow and account creation
 
     @PostMapping("/register")
     public String registerUser(@RequestParam String firstName,
@@ -90,6 +106,11 @@ public class HomeController {
 
         return "redirect:/login";
     }
+
+    // handles user login and session creation
+    // Lauren: implemented login logic and password verification
+    // Margaret: worked on login form and frontend connection
+    // Vida: helped test login functionality and user validation
 
     @PostMapping("/login")
     public String loginUser(@RequestParam String email,
@@ -113,10 +134,19 @@ public class HomeController {
         return "login";
     }
 
+    // shows forgot password page
+    // Margaret: worked on frontend page
+    // Lauren: connected route to backend
+
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
         return "forgot-password";
     }
+
+    // handles password reset and updates hashed password
+    // Lauren: implemented password reset logic and hashing
+    // Vida: helped test password reset functionality
+    // Margaret: worked on frontend form connection
 
     @PostMapping("/reset-password")
     public String resetPassword(@RequestParam String email,
@@ -136,6 +166,10 @@ public class HomeController {
     }
 
     // Dashboard
+    // loads dashboard with user-specific data (bookings, pets, reviews)
+    // Lauren: handled backend data loading and filtering
+    // Margaret: worked on dashboard UI and displaying data
+    // Vida: helped test booking/review logic and data accuracy
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
@@ -147,7 +181,7 @@ public class HomeController {
         }
 
         model.addAttribute("user", user);
-        // 🔥 GET REVIEWS ABOUT THIS OWNER
+        // GET REVIEWS ABOUT THIS OWNER
         List<Review> ownerReviews = reviewRepository.findByRevieweeId(user.getId());
         model.addAttribute("ownerReviews", ownerReviews);
 
@@ -214,13 +248,18 @@ public class HomeController {
         model.addAttribute("pets", userPets);
 
 
-        // 🔽 KEEP YOUR EXISTING RETURN LOGIC
+        // existing return loginc
         if ("OWNER".equals(user.getRole())) {
             return "owner-dashboard";
         } else {
             return "sitter-dashboard";
         }
     }
+
+    // loads edit pet page
+    // Lauren: handled backend validation and pet retrieval
+    // Margaret: worked on edit pet UI
+    // Vida: helped test pet editing functionality
 
     @GetMapping("/edit-pet/{id}")
     public String editPet(@PathVariable Long id, Model model, HttpSession session) {
@@ -245,6 +284,9 @@ public class HomeController {
     
 
     // Pet feature
+    // shows add pet page
+    // Margaret: worked on add pet form
+    // Lauren: connected route to backend
 
     @GetMapping("/add-pet")
     public String showAddPetPage(HttpSession session) {
@@ -256,6 +298,11 @@ public class HomeController {
 
         return "add-pet";
     }
+
+    // updates pet information and handles image upload
+    // Lauren: implemented backend update logic
+    // Vida: worked on image upload functionality
+    // Margaret: worked on edit pet form and frontend display
 
     @PostMapping("/update-pet")
     public String updatePet(@RequestParam Long id,
@@ -288,8 +335,7 @@ public class HomeController {
     
         System.out.println("PHOTO EMPTY? " + photo.isEmpty());
 
-        // 🖼️ update image ONLY if new one uploaded
-        // 🖼️ update image ONLY if new one uploaded
+        // update image ONLY if new one uploaded
     System.out.println("PHOTO EMPTY? " + photo.isEmpty());
 
     if (!photo.isEmpty()) {
@@ -325,6 +371,11 @@ public class HomeController {
         return "redirect:/dashboard";
     }
 
+    // saves a new pet and handles image upload
+    // Lauren: implemented backend logic for saving pets
+    // Vida: worked on image upload and file handling
+    // Margaret: worked on add pet form and frontend display
+
     @PostMapping("/save-pet")
     public String savePet(@RequestParam String name,
                         @RequestParam String type,
@@ -348,12 +399,12 @@ public class HomeController {
         pet.setNotes(notes);
         pet.setOwner(user);
 
-        // 🖼️ HANDLE IMAGE UPLOAD
+        // handle image upload
         if (!photo.isEmpty()) {
             try {
                 String uploadDir = "src/main/resources/static/uploads/";
 
-                // ✅ MAKE SURE FOLDER EXISTS
+                // checks to make sure folder exists
                 File uploadFolder = new File(uploadDir);
                 if (!uploadFolder.exists()) {
                     uploadFolder.mkdirs();
@@ -383,6 +434,10 @@ public class HomeController {
     }
 
     // Sitters list
+    // displays list of available sitters
+    // Lauren: handled backend filtering of sitter users
+    // Margaret: worked on sitter page UI and display
+    // Vida: helped test sitter data accuracy
 
     @GetMapping("/sitters")
     public String viewSitters(Model model, HttpSession session) {
@@ -408,6 +463,10 @@ public class HomeController {
     }
 
     // New real booking request flow
+    // shows booking request page with calendar and pet selection
+    // Lauren: built backend logic for loading sitter, pets, and calendar data
+    // Margaret: worked on booking request page UI
+    // Vida: implemented availability and booking overlay logic
 
     @GetMapping("/request-booking/{id}")
     public String showBookingRequestForm(@PathVariable Long id,
@@ -433,7 +492,7 @@ public class HomeController {
         // Always send sitter
         model.addAttribute("sitter", sitter);
 
-        // ===== GET OWNER PETS =====
+        // get owner pets
         List<Pet> ownerPets = new ArrayList<>();
         for (Pet pet : petRepository.findAll()) {
             if (pet.getOwner() != null &&
@@ -443,7 +502,7 @@ public class HomeController {
         }
         model.addAttribute("pets", ownerPets);
 
-        // ===== CALENDAR =====
+        // calendar
         Map<String, Map<LocalDate, String>> calendarByMonth = new LinkedHashMap<>();
 
         LocalDate today = LocalDate.now();
@@ -457,7 +516,7 @@ public class HomeController {
             calendarByMonth.get(month).put(date, null);
         }
 
-        // ===== AVAILABILITY =====
+        // this is where availability starts
         for (Availability a : availabilityRepository.findAll()) {
             if (sitter != null &&
                 a.getSitter() != null &&
@@ -471,7 +530,7 @@ public class HomeController {
             }
         }
 
-        // ===== BOOKINGS =====
+        // bookings starts here
         for (Booking b : bookingRepository.findAll()) {
             if (sitter != null &&
                 b.getSitter() != null &&
@@ -496,11 +555,16 @@ public class HomeController {
             }
         }
 
-        // 🔥 THIS WAS MISSING — VERY IMPORTANT
+        // do not delete bc only way to keep calendar months
         model.addAttribute("calendarByMonth", calendarByMonth);
 
         return "request-booking";
     }
+
+// handles booking form submission and creates a new booking
+// Lauren: built booking creation logic and connected form data to backend
+// Margaret: worked on booking request form and sending data here
+// Vida: helped with booking status setup and tested booking flow
 
         @PostMapping("/request-booking")
         public String requestBooking(@RequestParam Long sitterId,
@@ -513,7 +577,7 @@ public class HomeController {
                                     HttpSession session,
                                     Model model) {
             
-            // 🔥 ADD THIS RIGHT HERE
+            // debugging step, don't get rid of want this just in case for the demo
             System.out.println("===== REQUEST BOOKING HIT =====");
             System.out.println("CONTACT INFO: " + contactInfo);
 
@@ -527,7 +591,7 @@ public class HomeController {
             User sitter = userRepository.findById(sitterId).orElse(null);
             Pet pet = petRepository.findById(petId).orElse(null);
 
-            // 🔍 DEBUG LOGS (super helpful)
+            // DEBUG LOGS (super helpful)
             System.out.println("===== BOOKING DEBUG =====");
             System.out.println("OWNER: " + owner);
             System.out.println("SITTER: " + sitter);
@@ -536,7 +600,7 @@ public class HomeController {
             System.out.println("END: " + endDate);
             System.out.println("CONTACT INFO: " + contactInfo);
 
-            // 🚨 PREVENT CRASHES
+            // PREVENT CRASHES
             if (sitter == null) {
                 model.addAttribute("error", "Sitter not found.");
                 return "error";
@@ -557,14 +621,14 @@ public class HomeController {
 
                 booking.setServiceType(serviceType);
 
-                // ✅ Safe date parsing
+                // Safe date parsing
                 booking.setStartDate(LocalDate.parse(startDate));
                 booking.setEndDate(LocalDate.parse(endDate));
 
                 booking.setRequestMessage(requestMessage);
                 booking.setStatus("REQUESTED");
 
-                // ✅ NEW FIELD (safe)
+                // NEW FIELD (safe)
                 booking.setContactInfo(contactInfo);
 
                 bookingRepository.save(booking);
@@ -583,6 +647,10 @@ public class HomeController {
         }
 
     // Bookings page filtered to logged-in user
+    // shows bookings for the logged-in user
+    // Lauren: handled backend filtering of bookings
+    // Margaret: worked on displaying booking data on the page
+    // Vida: tested booking filtering and data accuracy
 
     @GetMapping("/bookings")
     public String getBookings(Model model, HttpSession session) {
@@ -617,6 +685,11 @@ public class HomeController {
         return "bookings";
     }
 
+// allows sitter to accept a booking request
+// Lauren: implemented backend route for updating booking status
+// Vida: worked on status logic (CONFIRMED)
+// Margaret: helped ensure updates show correctly on frontend
+
     @GetMapping("/accept-booking/{id}")
     public String acceptBooking(@PathVariable Long id, HttpSession session) {
 
@@ -642,6 +715,11 @@ public class HomeController {
 
         return "redirect:/dashboard";
     }
+
+// allows sitter to decline a booking request
+// Lauren: implemented backend route for declining bookings
+// Vida: handled decline logic and messaging
+// Margaret: helped display decline results on frontend
 
     @PostMapping("/decline-booking")
     public String declineBooking(@RequestParam Long bookingId,
@@ -673,6 +751,11 @@ public class HomeController {
         return "redirect:/dashboard";
     }
 
+// allows sitter to mark booking as completed
+// Lauren: implemented backend route for completing bookings
+// Vida: worked on booking lifecycle logic (CONFIRMED → COMPLETED)
+// Margaret: helped reflect completed status on frontend
+
     @GetMapping("/complete-booking/{id}")
     public String completeBooking(@PathVariable Long id, HttpSession session) {
 
@@ -703,6 +786,11 @@ public class HomeController {
 
         return "redirect:/dashboard";
     }
+
+// shows form for leaving a review after a booking
+// Lauren: handled backend validation for review access
+// Vida: implemented rules for when reviews can be created
+// Margaret: worked on connecting review form to frontend
 
     @GetMapping("/leave-review/{bookingId}/{revieweeId}")
     public String showReviewForm(@PathVariable Long bookingId,
@@ -750,6 +838,11 @@ public class HomeController {
         return "review-form";
     }
 
+// handles submitting a review
+// Lauren: handled backend saving of review data
+// Vida: implemented review validation and rating logic
+// Margaret: worked on review form submission and display
+
     @PostMapping("/submit-review")
     public String submitReview(@RequestParam Long bookingId,
                             @RequestParam Long revieweeId,
@@ -782,7 +875,7 @@ public class HomeController {
             return "error";
         }
 
-        // ✅ Validate review direction (clean + reliable)
+        // Validate review direction (clean + reliable)
         boolean isOwnerReview = booking.getOwner() != null
                 && booking.getSitter() != null
                 && booking.getOwner().getId().equals(reviewer.getId())
@@ -798,7 +891,7 @@ public class HomeController {
             return "error";
         }
 
-        // ✅ Prevent duplicate review
+        // Prevent duplicate review
         Review existing = reviewRepository.findByBookingIdAndReviewerIdAndRevieweeId(
                 bookingId, reviewer.getId(), revieweeId
         );
@@ -807,7 +900,7 @@ public class HomeController {
             return "redirect:/dashboard";
         }
 
-        // ✅ Create review
+        // Create review
         Review review = new Review();
         review.setBooking(booking);
         review.setReviewer(reviewer);
@@ -815,7 +908,7 @@ public class HomeController {
         review.setRating(rating);
         review.setComment(comment);
 
-        // ✅ Set review type (FIXED LOGIC)
+        // Set review type (FIXED LOGIC) do not delete!! very important
         if (isOwnerReview) {
             review.setReviewType("OWNER_TO_SITTER");
         } else {
@@ -831,6 +924,9 @@ public class HomeController {
         }
     }
 
+// loads admin page
+// Lauren: set up route for admin page
+
     @GetMapping("/admin")
     public String admin(HttpSession session) {
         User user = (User) session.getAttribute("loggedInUser");
@@ -841,6 +937,11 @@ public class HomeController {
 
         return "admin";
     }
+
+// displays sitter ratings and reviews
+// Lauren: handled backend retrieval of rating data
+// Vida: worked on rating calculations and review logic
+// Margaret: worked on displaying ratings on frontend
 
     @GetMapping("/sitter-rating/{id}")
     public String getSitterRating(@PathVariable Long id, Model model) {
@@ -855,7 +956,7 @@ public class HomeController {
         // average rating (what you already have)
         Double avg = reviewRepository.getAverageRatingForUser(id);
 
-        // 🔥 NEW: get all reviews for this sitter
+        // NEW: get all reviews for this sitter
         List<Review> reviews = reviewRepository.findByRevieweeId(id);
 
         model.addAttribute("sitter", sitter);
@@ -866,7 +967,12 @@ public class HomeController {
         return "sitter-rating";
     }
 
-    // 📅 Toggle Availability (click date)
+    // Toggle Availability (click date)
+    // adds or removes availability for a sitter
+// Lauren: set up route and database interaction
+// Vida: implemented availability logic
+// Margaret: helped display updates on frontend
+
     @GetMapping("/toggle-availability/{date}")
     public String toggleAvailability(@PathVariable String date, HttpSession session) {
 
@@ -886,13 +992,13 @@ public class HomeController {
             if (a.getSitter().getId().equals(sitter.getId()) &&
                 a.getAvailableDate().equals(selectedDate)) {
 
-                // ❌ remove availability
+                // remove availability
                 availabilityRepository.delete(a);
                 return "redirect:/availability";
             }
         }
 
-        // ✅ add availability
+        // add availability
         Availability availability = new Availability();
         availability.setSitter(sitter);
         availability.setAvailableDate(selectedDate);
@@ -902,6 +1008,10 @@ public class HomeController {
         return "redirect:/availability";
     }
 
+// shows availability calendar
+// Lauren: built backend structure for calendar data
+// Vida: implemented availability and booking overlay logic
+// Margaret: worked on displaying calendar on frontend
 
     @GetMapping("/availability")
     public String availabilityPage(HttpSession session, Model model) {
@@ -972,11 +1082,18 @@ public class HomeController {
         return "availability";
     }
 
+    // logs user out and clears session
+    // Lauren: implemented session handling and logout
+
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate(); // clears login session
         return "redirect:/";
     }
+
+// deactivates a user account
+// Lauren: implemented soft delete logic
+// Vida: helped test account deactivation
 
     @GetMapping("/deactivate-user/{id}")
     public String deactivateUser(@PathVariable Long id, HttpSession session) {
@@ -993,6 +1110,11 @@ public class HomeController {
         return "redirect:/";
     }
 
+// fully deletes a user and related data
+// Lauren: implemented deletion logic and handled database dependencies
+// Vida: helped debug and test deletion across related data
+// Margaret: helped verify frontend behavior after deletion
+
     @PostMapping("/delete-account")
     public String deleteAccount(HttpSession session) {
 
@@ -1004,7 +1126,7 @@ public class HomeController {
 
         Long userId = user.getId();
 
-        // ✅ 1. Delete reviews FIRST
+        // 1. Delete reviews FIRST
         reviewRepository.deleteAll(
             reviewRepository.findAll().stream()
                 .filter(r -> r.getReviewer().getId().equals(userId) ||
@@ -1012,7 +1134,7 @@ public class HomeController {
                 .toList()
         );
 
-        // ✅ 2. Delete bookings
+        // 2. Delete bookings
         bookingRepository.deleteAll(
             bookingRepository.findAll().stream()
                 .filter(b -> b.getOwner().getId().equals(userId) ||
@@ -1020,21 +1142,22 @@ public class HomeController {
                 .toList()
         );
 
-        // ✅ 3. Delete availability
+        // 3. Delete availability
         availabilityRepository.deleteAll(
             availabilityRepository.findAll().stream()
                 .filter(a -> a.getSitter().getId().equals(userId))
                 .toList()
         );
 
-        // ✅ 4. Delete pets
+        // 4. Delete pets
         petRepository.deleteAll(
             petRepository.findAll().stream()
                 .filter(p -> p.getOwner().getId().equals(userId))
                 .toList()
         );
 
-        // ✅ 5. Delete user LAST
+        // 5. Delete user LAST
+        // do not delete this order, it has to be like this bc of our database
         userRepository.deleteById(userId);
 
         session.invalidate();
@@ -1042,5 +1165,6 @@ public class HomeController {
         return "redirect:/";
     }
 }
+
 
 

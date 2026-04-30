@@ -4,13 +4,14 @@
     <title>Register - SitHappens</title>
 
     <style>
+        /* page styling */
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             background-color: #faf7f5;
             margin: 0;
         }
 
-        /* NAVBAR */
+        /* navbar */
         nav {
             display: flex;
             justify-content: space-between;
@@ -30,7 +31,7 @@
             text-decoration: underline;
         }
 
-        /* CONTAINER */
+        /* form container */
         .container {
             max-width: 420px;
             margin: 50px auto;
@@ -52,6 +53,7 @@
             font-weight: 500;
         }
 
+        /* input fields */
         input, select {
             width: 100%;
             padding: 10px;
@@ -66,6 +68,7 @@
             border-color: #2980b9;
         }
 
+        /* register button */
         button {
             margin-top: 20px;
             width: 100%;
@@ -82,6 +85,7 @@
             background-color: #21618c;
         }
 
+        /* login link */
         .links {
             margin-top: 15px;
             text-align: center;
@@ -100,7 +104,7 @@
 
 <body>
 
-<!-- NAVBAR -->
+<!-- navbar -->
 <nav>
     <div>
         <a href="/">Home</a>
@@ -116,6 +120,7 @@
 
     <h2>Create an Account</h2>
 
+    <!-- register form -->
     <form action="/register" method="post">
 
         <label>First Name</label>
@@ -140,6 +145,7 @@
 
     </form>
 
+    <!-- login link -->
     <div class="links">
         <p>Already have an account?</p>
         <a href="/login">Login here</a>

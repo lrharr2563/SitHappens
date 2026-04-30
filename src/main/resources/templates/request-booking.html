@@ -4,6 +4,7 @@
     <title>Request Booking - SitHappens</title>
 
     <style>
+        /* page styling */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f6f9;
@@ -11,6 +12,7 @@
             margin: 0;
         }
 
+        /* main container */
         .container {
             max-width: 850px;
             margin: auto;
@@ -20,6 +22,7 @@
             box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
         }
 
+        /* form inputs */
         input, select, textarea {
             width: 100%;
             padding: 8px;
@@ -28,6 +31,7 @@
             box-sizing: border-box;
         }
 
+        /* submit button */
         button {
             padding: 10px 15px;
             background-color: #27ae60;
@@ -41,8 +45,7 @@
             background-color: #219150;
         }
 
-        /* ===== CALENDAR ===== */
-
+        /* calendar layout */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -51,6 +54,7 @@
             margin-bottom: 25px;
         }
 
+        /* calendar day */
         .calendar-day {
             padding: 14px;
             text-align: center;
@@ -77,6 +81,7 @@
             padding-bottom: 5px;
         }
 
+        /* error message */
         .error {
             color: red;
             font-weight: bold;
@@ -90,11 +95,12 @@
 
     <h2>Request Service</h2>
 
-    <!-- 🔥 SAFETY CHECK -->
+    <!-- safety check if sitter is missing -->
     <div th:if="${sitter == null}" class="error">
         Error: Sitter not found.
     </div>
 
+    <!-- sitter info -->
     <p>
         Requesting service from:
         <strong>
@@ -103,9 +109,10 @@
         </strong>
     </p>
 
+    <!-- booking form -->
     <form th:action="@{/request-booking}" method="post">
 
-        <!-- 🔥 NULL-SAFE -->
+        <!-- hidden sitter id -->
         <input type="hidden" name="sitterId"
                th:value="${sitter != null ? sitter.id : 0}" />
 
@@ -136,6 +143,7 @@
         <textarea name="requestMessage" rows="5"
                   placeholder="Hi, I am looking for care for my pet during these dates."
                   required></textarea>
+
         <label>Contact Info (Phone or Email):</label>
         <input type="text" name="contactInfo" placeholder="Enter phone number or email">
 
@@ -143,16 +151,18 @@
 
     </form>
 
-    <!-- ===== CALENDAR ===== -->
-
+    <!-- availability section -->
     <h3>Sitter Availability</h3>
 
+    <!-- loop through months -->
     <div th:each="monthEntry : ${calendarByMonth}">
 
         <h4 th:text="${#strings.capitalize(#strings.toLowerCase(monthEntry.key))}"></h4>
 
+        <!-- calendar grid -->
         <div class="calendar-grid">
 
+            <!-- each day -->
             <div th:each="entry : ${monthEntry.value}"
                  th:class="'calendar-day ' +
                     (${entry.value} == 'AVAILABLE' ? 'available' : '') +

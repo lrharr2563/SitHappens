@@ -4,13 +4,14 @@
     <title>Login - SitHappens</title>
 
     <style>
+        /* page styling */
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             background-color: #faf7f5;
             margin: 0;
         }
 
-        /* NAVBAR */
+        /* navbar */
         nav {
             display: flex;
             justify-content: space-between;
@@ -30,7 +31,7 @@
             text-decoration: underline;
         }
 
-        /* CENTERING WRAPPER */
+        /* center login card */
         .wrapper {
             display: flex;
             justify-content: center;
@@ -38,7 +39,7 @@
             height: 85vh;
         }
 
-        /* LOGIN CARD */
+        /* login card */
         .container {
             width: 100%;
             max-width: 400px;
@@ -58,6 +59,7 @@
             font-size: 14px;
         }
 
+        /* input fields */
         input {
             width: 100%;
             padding: 10px;
@@ -67,7 +69,7 @@
             border: 1px solid #ccc;
         }
 
-        /* BUTTON (matches homepage now) */
+        /* login button */
         button {
             padding: 10px;
             width: 100%;
@@ -82,6 +84,7 @@
             background-color: #cf711f;
         }
 
+        /* extra links */
         .links {
             margin-top: 15px;
             text-align: center;
@@ -98,6 +101,7 @@
             text-decoration: underline;
         }
 
+        /* error message */
         .error {
             color: red;
             margin-top: 10px;
@@ -108,7 +112,7 @@
 
 <body>
 
-<!-- NAVBAR -->
+<!-- navbar -->
 <nav>
     <div>
         <a href="/">Home</a>
@@ -127,6 +131,7 @@
 
         <h2>🔐 Login</h2>
 
+        <!-- login form -->
         <form action="/login" method="post">
 
             <label>Email:</label>
@@ -139,10 +144,10 @@
 
         </form>
 
-        <!-- ERROR MESSAGE -->
+        <!-- error message -->
         <p th:if="${error}" th:text="${error}" class="error"></p>
 
-        <!-- LINKS -->
+        <!-- links -->
         <div class="links">
             <a href="/forgot-password">Forgot Password?</a>
             <a href="/register">Don't have an account? Register</a>

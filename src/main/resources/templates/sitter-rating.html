@@ -4,13 +4,14 @@
     <title>Sitter Rating</title>
 
     <style>
+        /* page styling */
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             background-color: #faf7f5;
             margin: 0;
         }
 
-        /* NAVBAR */
+        /* navbar */
         nav {
             display: flex;
             justify-content: space-between;
@@ -29,12 +30,13 @@
             text-decoration: underline;
         }
 
-        /* CONTAINER */
+        /* main container */
         .container {
             max-width: 700px;
             margin: 40px auto;
         }
 
+        /* card layout */
         .card {
             background: white;
             padding: 25px;
@@ -52,6 +54,7 @@
             color: #2c3e50;
         }
 
+        /* review display */
         .review {
             background-color: #eef6ff;
             padding: 12px;
@@ -64,6 +67,7 @@
             font-weight: bold;
         }
 
+        /* back link */
         .back-link {
             display: inline-block;
             margin-top: 15px;
@@ -80,6 +84,7 @@
 
 <body>
 
+<!-- navbar -->
 <nav>
     <div>
         <a href="/">Home</a>
@@ -96,9 +101,10 @@
 
     <div class="card">
 
-        <!-- 🔥 FIXED: use sitter instead of user -->
+        <!-- sitter name -->
         <h2 th:text="${sitter.firstName + ' ' + sitter.lastName}"></h2>
 
+        <!-- average rating -->
         <p>
             <strong>Average Rating:</strong>
             <span th:text="${averageRating != null ? averageRating : 0}"></span> / 5 ⭐
@@ -106,10 +112,10 @@
 
         <h3>Reviews</h3>
 
-        <!-- IF NO REVIEWS -->
+        <!-- no reviews -->
         <p th:if="${#lists.isEmpty(reviews)}">No reviews yet.</p>
 
-        <!-- LOOP REVIEWS -->
+        <!-- list reviews -->
         <div th:each="review : ${reviews}" class="review">
 
             <p class="stars">
@@ -124,6 +130,7 @@
 
         </div>
 
+        <!-- back link -->
         <a href="/sitters" class="back-link">← Back to Sitters</a>
 
     </div>

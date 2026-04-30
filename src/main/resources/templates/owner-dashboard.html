@@ -4,12 +4,14 @@
     <title>Owner Dashboard</title>
 
     <style>
+        /* page styling */
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             background-color: #faf7f5;
             margin: 0;
         }
 
+        /* navbar */
         nav {
             display: flex;
             justify-content: space-between;
@@ -29,6 +31,7 @@
             text-decoration: underline;
         }
 
+        /* main container */
         .container {
             max-width: 900px;
             margin: 30px auto;
@@ -38,6 +41,7 @@
             margin-top: 30px;
         }
 
+        /* card layout */
         .card {
             background: white;
             padding: 20px;
@@ -50,6 +54,7 @@
             color: #2c3e50;
         }
 
+        /* buttons */
         .review-btn, .add-pet-btn, .find-sitter-btn {
             display: inline-block;
             padding: 8px 12px;
@@ -84,6 +89,7 @@
             background-color: #21618c;
         }
 
+        /* pet display */
         .pet-card {
             display: flex;
             align-items: center;
@@ -98,6 +104,7 @@
             border: 2px solid #ddd;
         }
 
+        /* review display */
         .review {
             background-color: #eef6ff;
             padding: 12px;
@@ -105,6 +112,7 @@
             margin-top: 10px;
         }
 
+        /* delete account button */
         .delete-btn {
             background-color: #e74c3c;
             color: white;
@@ -118,12 +126,12 @@
 
             font-family: inherit;
             font-size: 14px;
-            font-weight: 500;   /* 👈 MATCHES NAV LINKS */
+            font-weight: 500;
 
             display: inline-block;
             vertical-align: middle;
 
-            line-height: normal; /* 👈 fixes height alignment */
+            line-height: normal;
         }
 
         .delete-btn:hover {
@@ -135,7 +143,7 @@
 
 <body>
 
-<!-- NAVBAR -->
+<!-- navbar -->
 <nav>
     <div>
         <a href="/">Home</a>
@@ -146,7 +154,7 @@
         <a href="/dashboard">Dashboard</a>
         <a href="/logout">Logout</a>
 
-        <!-- DELETE ACCOUNT BUTTON -->
+        <!-- delete account -->
         <form action="/delete-account" method="post" style="display:inline;"
               onsubmit="return confirm('Are you sure you want to delete your account? This cannot be undone.');">
             <button class="delete-btn">
@@ -160,19 +168,23 @@
 
     <h1>Owner Dashboard</h1>
 
+    <!-- main actions -->
     <a href="/add-pet" class="add-pet-btn">Add Pet</a>
     <a href="/sitters" class="find-sitter-btn">Find a Sitter</a>
 
-    <!-- 🐾 PETS -->
+    <!-- pets section -->
     <div class="section">
         <h2>Your Pets</h2>
 
+        <!-- no pets -->
         <div th:if="${#lists.isEmpty(pets)}" class="card">
             <p>No pets added yet.</p>
         </div>
 
+        <!-- list pets -->
         <div th:each="pet : ${pets}" class="card">
 
+            <!-- edit pet -->
             <a th:href="@{/edit-pet/{id}(id=${pet.id})}"
                style="background-color:#f39c12; color:white; padding:6px 10px; border-radius:5px; text-decoration:none;">
                 Edit
@@ -180,6 +192,7 @@
 
             <div class="pet-card">
 
+                <!-- pet image -->
                 <div>
                     <img th:if="${pet.imagePath != null}"
                          th:src="${pet.imagePath}"
@@ -190,6 +203,7 @@
                          class="pet-image">
                 </div>
 
+                <!-- pet info -->
                 <div>
                     <p><strong>Name:</strong> <span th:text="${pet.name}"></span></p>
                     <p><strong>Type:</strong> <span th:text="${pet.type}"></span></p>
@@ -202,7 +216,7 @@
         </div>
     </div>
 
-    <!-- ⭐ REVIEWS -->
+    <!-- reviews section -->
     <div class="section">
         <h2>Reviews About You</h2>
 
@@ -221,14 +235,16 @@
         </div>
     </div>
 
-    <!-- 📅 BOOKINGS -->
+    <!-- bookings section -->
     <div class="section">
         <h2>Your Bookings</h2>
 
+        <!-- no bookings -->
         <div th:if="${#lists.isEmpty(bookings)}" class="card">
             <p>No bookings yet.</p>
         </div>
 
+        <!-- list bookings -->
         <div th:each="booking : ${bookings}" class="card">
 
             <p>
@@ -247,7 +263,7 @@
             <p><strong>Start Date:</strong> <span th:text="${booking.startDate}"></span></p>
             <p><strong>End Date:</strong> <span th:text="${booking.endDate}"></span></p>
 
-            <!-- REVIEW BUTTON -->
+            <!-- review button -->
             <div th:if="${booking.status == 'COMPLETED' and !#lists.contains(reviewedBookingIds, booking.id)}">
                 <a th:href="@{/leave-review/{bookingId}/{revieweeId}(bookingId=${booking.id},revieweeId=${booking.sitter.id})}"
                    class="review-btn">
@@ -255,6 +271,7 @@
                 </a>
             </div>
 
+            <!-- already reviewed -->
             <p th:if="${booking.status == 'COMPLETED' and #lists.contains(reviewedBookingIds, booking.id)}">
                 ✔ Review already submitted
             </p>

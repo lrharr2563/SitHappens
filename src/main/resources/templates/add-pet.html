@@ -4,13 +4,14 @@
     <title>Add Pet</title>
 
     <style>
+        /* page styling */
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f6f9;
             margin: 0;
         }
 
-        /* NAVBAR */
+        /* navbar */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -35,7 +36,7 @@
             margin-right: 0;
         }
 
-        /* PAGE */
+        /* form container */
         .container {
             max-width: 600px;
             margin: 40px auto;
@@ -54,6 +55,7 @@
             font-weight: 500;
         }
 
+        /* inputs */
         input, textarea {
             width: 100%;
             padding: 8px;
@@ -62,6 +64,7 @@
             border: 1px solid #ccc;
         }
 
+        /* button */
         button {
             margin-top: 15px;
             padding: 10px;
@@ -77,6 +80,7 @@
             background-color: #219150;
         }
 
+        /* back link */
         .back-link {
             display: block;
             margin-top: 15px;
@@ -89,7 +93,7 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
+<!-- navbar -->
 <nav class="navbar">
     <div>
         <a href="/">Home</a>
@@ -102,11 +106,12 @@
     </div>
 </nav>
 
-<!-- FORM -->
+<!-- pet form -->
 <div class="container">
 
     <h1>Add Your Pet 🐾</h1>
 
+    <!-- form to add pet -->
     <form action="/save-pet" method="post" enctype="multipart/form-data">
 
         <label>Pet Name:</label>
@@ -132,6 +137,7 @@
 
     </form>
 
+    <!-- back to dashboard -->
     <a href="/dashboard" class="back-link">⬅ Back to Dashboard</a>
 
 </div>

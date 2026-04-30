@@ -4,12 +4,14 @@
     <title>Edit Pet</title>
 
     <style>
+        /* page styling */
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             background-color: #faf7f5;
             margin: 0;
         }
 
+        /* navbar */
         nav {
             display: flex;
             justify-content: space-between;
@@ -29,11 +31,13 @@
             text-decoration: underline;
         }
 
+        /* main container */
         .container {
             max-width: 500px;
             margin: 60px auto;
         }
 
+        /* card layout */
         .card {
             background: white;
             padding: 30px;
@@ -53,6 +57,7 @@
             font-weight: 500;
         }
 
+        /* inputs */
         input, textarea {
             width: 100%;
             padding: 8px;
@@ -65,6 +70,7 @@
             resize: vertical;
         }
 
+        /* update button */
         .btn {
             margin-top: 20px;
             width: 100%;
@@ -81,6 +87,7 @@
             background-color: #219150;
         }
 
+        /* back link */
         .back-link {
             display: block;
             text-align: center;
@@ -97,7 +104,7 @@
 
 <body>
 
-<!-- NAVBAR -->
+<!-- navbar -->
 <nav>
     <div>
         <a href="/">Home</a>
@@ -115,8 +122,10 @@
 
         <h2>Edit Pet 🐾</h2>
 
+        <!-- form to update pet -->
         <form th:action="@{/update-pet}" method="post" enctype="multipart/form-data">
 
+            <!-- hidden id so we know which pet to update -->
             <input type="hidden" name="id" th:value="${pet.id}" />
 
             <label>Name:</label>
@@ -143,6 +152,7 @@
 
         </form>
 
+        <!-- back to dashboard -->
         <a href="/dashboard" class="back-link">← Back to Dashboard</a>
 
     </div>

@@ -5,6 +5,7 @@
 
     <style>
 
+        /* page styling */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f6f9;
@@ -12,6 +13,7 @@
             margin: 0;
         }
 
+        /* header */
         header {
             background-color: #2c3e50;
             color: white;
@@ -24,11 +26,13 @@
             margin: 0;
         }
 
+        /* main container */
         .container {
             max-width: 800px;
             margin: auto;
         }
 
+        /* sitter card */
         .card {
             background: white;
             padding: 20px;
@@ -37,6 +41,7 @@
             box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
         }
 
+        /* rating link */
         .rating-link {
             color: #3498db;
             text-decoration: none;
@@ -46,6 +51,7 @@
             text-decoration: underline;
         }
 
+        /* request button */
         .request-link {
             display: inline-block;
             padding: 8px 12px;
@@ -60,11 +66,13 @@
             background-color: #219150;
         }
 
+        /* no sitters message */
         .no-sitters {
             font-style: italic;
             color: #7f8c8d;
         }
 
+        /* navbar */
         .navbar {
             margin-top: 15px;
         }
@@ -88,6 +96,7 @@
 
 <div class="container">
 
+    <!-- header / nav -->
     <header>
         <h1>🐶 Available Sitters</h1>
         <p>Find trusted sitters for your pets</p>
@@ -101,10 +110,12 @@
 
     </header>
 
+    <!-- no sitters -->
     <div th:if="${#lists.isEmpty(sitters)}" class="no-sitters">
         No sitters available yet.
     </div>
 
+    <!-- list sitters -->
     <div th:each="sitter : ${sitters}" class="card">
 
         <p>
@@ -118,12 +129,14 @@
             <span th:text="${sitter.email}"></span>
         </p>
 
+        <!-- rating link -->
         <p>
             <a th:href="@{/sitter-rating/{id}(id=${sitter.id})}" class="rating-link">
                 View Rating
             </a>
         </p>
 
+        <!-- request booking -->
         <p>
             <a th:href="@{/request-booking/{id}(id=${sitter.id})}" class="request-link">
                 Request Service

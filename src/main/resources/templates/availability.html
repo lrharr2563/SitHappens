@@ -4,6 +4,7 @@
     <title>Manage Availability</title>
 
     <style>
+        /* page styling */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f6f9;
@@ -11,6 +12,7 @@
             margin: 0;
         }
 
+        /* main container */
         .container {
             max-width: 950px;
             margin: auto;
@@ -24,6 +26,7 @@
             color: #2c3e50;
         }
 
+        /* back link */
         .back-link {
             display: inline-block;
             margin-bottom: 20px;
@@ -35,6 +38,7 @@
             text-decoration: underline;
         }
 
+        /* legend for colors */
         .legend {
             margin: 20px 0;
             display: flex;
@@ -54,6 +58,7 @@
             border-radius: 4px;
         }
 
+        /* calendar layout */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -61,6 +66,7 @@
             margin-top: 20px;
         }
 
+        /* individual day */
         .calendar-day {
             display: block;
             padding: 14px;
@@ -87,6 +93,7 @@
             background-color: #bdc3c7;
         }
 
+        /* locked days can't be clicked */
         .locked {
             pointer-events: none;
             cursor: default;
@@ -102,7 +109,8 @@
 
 <body>
 
-    <nav style="background-color:#2c3e50; padding:15px; margin-bottom:20px; border-radius:8px;">
+<!-- top nav -->
+<nav style="background-color:#2c3e50; padding:15px; margin-bottom:20px; border-radius:8px;">
     
     <a href="/" style="color:white; margin-right:20px; text-decoration:none; font-weight:bold;">
         Home
@@ -120,15 +128,18 @@
 
 <div class="container">
 
+    <!-- back button -->
     <a href="/dashboard" class="back-link">← Back to Dashboard</a>
 
     <h1>Manage Availability</h1>
 
+    <!-- instructions -->
     <p>
         Click a date to add or remove availability.<br>
         <b>Green = Available</b>, <b>Orange = Pending</b>, <b>Red = Booked</b>
     </p>
 
+    <!-- color legend -->
     <div class="legend">
         <div class="legend-item">
             <div class="legend-box" style="background:#4CAF50;"></div>
@@ -146,12 +157,15 @@
         </div>
     </div>
 
+    <!-- loop through months -->
     <div th:each="monthEntry : ${calendarByMonth}">
 
         <h2 th:text="${#strings.capitalize(#strings.toLowerCase(monthEntry.key))}"></h2>
 
+        <!-- calendar grid -->
         <div class="calendar-grid">
 
+            <!-- each day -->
             <a th:each="entry : ${monthEntry.value}"
             th:href="${entry.value == 'PENDING' or entry.value == 'BOOKED'} ? '#' : @{/toggle-availability/{date}(date=${entry.key})}"
             th:class="'calendar-day ' +
@@ -168,6 +182,7 @@
 
     </div>
 
+    <!-- note at bottom -->
     <p class="note">
         You can click green/gray dates to toggle availability.<br>
         Pending and booked dates are locked.
